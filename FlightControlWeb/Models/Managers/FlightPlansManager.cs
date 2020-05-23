@@ -8,7 +8,20 @@ namespace FlightControlWeb.Models.Managers
     {
         private static List<FlightPlan> flightPlans = new List<FlightPlan>()
         {
-
+            new FlightPlan{ FlightId = "LY319", Passengers = 217, CompanyName = "El AL",
+                InitialLocation = new InitialLocation{ Longitude = 32.08, Latitude = 34.66,
+                DateTime = DateTime.Parse("2020-04-27T19:29:26Z") },
+                Segments = new Segment[2] { new Segment { Longitude = 32.08, Latitude = 34.66, TimespanSeconds = 650 },
+                new Segment { Longitude = 33.08, Latitude = 35.66, TimespanSeconds = 650 } } },
+            new FlightPlan{ FlightId = "SWS899", Passengers = 359, CompanyName = "Swiss Air",
+                InitialLocation = new InitialLocation{ Longitude = 39.48, Latitude = -73.22,
+                DateTime = DateTime.Parse("2020-04-27T19:30:26Z") },
+                Segments = new Segment[2] { new Segment { Longitude = 39.48, Latitude = -73.22, TimespanSeconds = 760 },
+                new Segment { Longitude = 40.48, Latitude = -74.22, TimespanSeconds = 850 } } },
+            new FlightPlan{ FlightId = "TK6140", Passengers = 143, CompanyName = "Turkish Airlines",
+                InitialLocation = new InitialLocation{ Longitude = 26.65, Latitude = 41.13, 
+                DateTime = DateTime.Parse("2020-04-27T19:29:26Z")},
+                Segments = new Segment[1] { new Segment { Longitude = 26.65, Latitude = 41.13, TimespanSeconds = 950 } } }
         };
 
         public void AddFlightPlan(FlightPlan flightPlan)

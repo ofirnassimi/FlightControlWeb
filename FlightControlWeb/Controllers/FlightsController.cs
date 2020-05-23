@@ -49,7 +49,7 @@ namespace FlightControlWeb.Controllers
             
             foreach (Segment segment in flightPlan.Segments)
             {
-                landingTime.AddSeconds(segment.TimespanSeconds);
+                landingTime = landingTime.AddSeconds(segment.TimespanSeconds);
             }
 
             if (flight.DateTime <= relative_to && 

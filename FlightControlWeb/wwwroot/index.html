@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>My Google Map</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+        #map {
+            height: 400px;
+            width: 50%;
+        }
+    </style>
+    <link rel="shortcut icon" href="" >
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        let serversArray;
+        let flightsArray;
+
+        async function startApplication() {
+            await initPageData();
+            initMap();
+        }
+
+        function initMap() {
+            let myLocation = { lat: 32.005443, lng: 34.885545 };
+            let map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 12,
+                center: myLocation
+            });
+
+            addFlightsMarkersToMap(map);            
+
+            //not working!!!!!!!!!
+            /*google.maps.event.addListener(map, 'click', function () {
+                markers[i].setIcon('img/blackPlane.png');
+                console.log("after changing picture");
+            });*/
+        }
+
+        async function initPageData() {
+            await initServers();
+            await initFlights();
+        }
+
+        async function initServers() {
+            const response = await fetch('https://localhost:44308/api/servers')
+                    .then(response => response.json());
+            serversArray = response;
+        }
+
+        async function initFlights() {
+            const date = new Date();
+            let dateTime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + "T" +
+                date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "Z"; 
+            const url = 'https://localhost:44308/api/Flights?relative_to=' + '2020-04-27T22:29:30Z' + '&sync_all';
+            const response = await fetch(url).then(response => response.json());
+            flightsArray = response;
+        }
+
+        function addFlightsMarkersToMap(map) {
+            let props = {};
+
+            for (let i = 0; i < flightsArray.length; i++) {
+            //for (let flight in flightsArray) {
+                props.location = {
+                    lat: flightsArray[i].Latitude,
+                    lng: flightsArray[i].Longitude
+                };
+
+                props.map = map;
+
+                addMarker(props);
+            }
+        }
+
+        function addMarker(props) {
+            let marker = new google.maps.Marker({
+                position: props.location,
+                map: props.map
+            });
+
+            marker.setIcon('img/blackPlane.png');
+
+            marker.addListener('click', function () {
+                marker.setIcon('img/coloredPlane.png');
+            });
+        }
+
+    </script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=startApplication">
+            //src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=initMap">
+    </script>
+</body>
+</html>
