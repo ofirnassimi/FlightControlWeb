@@ -17,6 +17,7 @@
     <script>
         let serversArray;
         let flightsArray;
+        let flightPlansArray = [];
 
         async function startApplication() {
             await initPageData();
@@ -42,6 +43,7 @@
         async function initPageData() {
             await initServers();
             await initFlights();
+            await initFlightPlans();
         }
 
         async function initServers() {
@@ -53,7 +55,7 @@
         async function initFlights() {
             let date = (new Date()).toISOString();
             //'2020-04-27T22:29:30Z'
-            const url = 'https://localhost:44308/api/Flights?relative_to=' + '2020-04-27T19:29:30Z' + '&sync_all';
+            const url = 'https://localhost:44308/api/Flights?relative_to=' + '2020-05-24T09:39:30Z' + '&sync_all';
             const response = await fetch(url).then(response => response.json());
             flightsArray = response;
         }
@@ -62,7 +64,6 @@
             let props = {};
 
             for (let i = 0; i < flightsArray.length; i++) {
-            //for (let flight in flightsArray) {
                 props.location = {
                     lat: flightsArray[i].Latitude,
                     lng: flightsArray[i].Longitude
@@ -85,6 +86,19 @@
             marker.addListener('click', function () {
                 marker.setIcon('img/coloredPlane.png');
             });
+        }
+
+        async function initFlightPlans() {
+            let flightId;
+
+            for (let i = 0; i < flightsArray.length; i++) {
+                flightId = flightsArray[i].FlightId;
+                const url = 'https://localhost:44308/api/FlightPlan/' + flightId;
+                const response = await fetch(url).then(response => response.json());
+                flightPlansArray.push(response);
+            }
+
+            console.log(flightPlansArray);
         }
 
     </script>
