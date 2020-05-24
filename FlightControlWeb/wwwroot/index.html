@@ -51,9 +51,7 @@
         }
 
         async function initFlights() {
-            const date = new Date();
-            let dateTime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + "T" +
-                date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "Z"; 
+            let date = (new Date()).toISOString();
             const url = 'https://localhost:44308/api/Flights?relative_to=' + '2020-04-27T22:29:30Z' + '&sync_all';
             const response = await fetch(url).then(response => response.json());
             flightsArray = response;
