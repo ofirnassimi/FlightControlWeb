@@ -20,12 +20,12 @@ namespace FlightControlWeb.Controllers
         public string Get(DateTime relative_to)
         {
             List<Flight> activeFlights = new List<Flight>();
-            DateTime dateTime = TimeZoneInfo.ConvertTimeToUtc(relative_to);
+            //DateTime dateTime = TimeZoneInfo.ConvertTimeToUtc(relative_to);
             bool syncAll = Request.Query.Keys.Contains("sync_all");
 
             foreach (Flight flight in flightsManager.GetAllFlights()) {
                 if (ValidAccordingToSyncAll(syncAll, flight) && 
-                    CheckIfFlightIsRelevant(flight, dateTime))
+                    CheckIfFlightIsRelevant(flight, relative_to))
                 {
                     activeFlights.Add(flight);
                 }
@@ -52,8 +52,12 @@ namespace FlightControlWeb.Controllers
                 landingTime = landingTime.AddSeconds(segment.TimespanSeconds);
             }
 
-            if (flight.DateTime <= relative_to && 
-                relative_to <= landingTime)
+            DateTime relative_to_UTC = TimeZoneInfo.ConvertTimeToUtc(relative_to);
+            DateTime dateTimeUTC = TimeZoneInfo.ConvertTimeToUtc(flight.DateTime);
+            DateTime landingTimeUTC = TimeZoneInfo.ConvertTimeToUtc(landingTime);
+
+            if (dateTimeUTC <= relative_to_UTC && 
+                relative_to_UTC <= landingTimeUTC)
             {
                 return true;
             }

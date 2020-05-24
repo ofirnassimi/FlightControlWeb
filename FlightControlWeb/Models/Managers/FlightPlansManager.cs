@@ -10,7 +10,7 @@ namespace FlightControlWeb.Models.Managers
         {
             new FlightPlan{ FlightId = "LY319", Passengers = 217, CompanyName = "El AL",
                 InitialLocation = new InitialLocation{ Longitude = 32.08, Latitude = 34.66,
-                DateTime = DateTime.Parse("2020-04-27T19:29:26Z") },
+                DateTime = DateTime.Parse("2020-05-24T09:04:00Z") },
                 Segments = new Segment[2] { new Segment { Longitude = 32.08, Latitude = 34.66, TimespanSeconds = 650 },
                 new Segment { Longitude = 33.08, Latitude = 35.66, TimespanSeconds = 650 } } },
             new FlightPlan{ FlightId = "SWS899", Passengers = 359, CompanyName = "Swiss Air",

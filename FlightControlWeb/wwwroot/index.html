@@ -52,7 +52,8 @@
 
         async function initFlights() {
             let date = (new Date()).toISOString();
-            const url = 'https://localhost:44308/api/Flights?relative_to=' + '2020-04-27T22:29:30Z' + '&sync_all';
+            //'2020-04-27T22:29:30Z'
+            const url = 'https://localhost:44308/api/Flights?relative_to=' + '2020-04-27T19:29:30Z' + '&sync_all';
             const response = await fetch(url).then(response => response.json());
             flightsArray = response;
         }
