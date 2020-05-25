@@ -18,16 +18,18 @@
         let serversArray;
         let flightsArray;
         let flightPlansArray = [];
+        let markersArray = [];
 
         async function startApplication() {
             await initPageData();
             initMap();
+            //showFlightsMarkers(map);
         }
 
         function initMap() {
             let myLocation = { lat: 32.005443, lng: 34.885545 };
             let map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 12,
+                zoom: 8,
                 center: myLocation
             });
 
@@ -38,11 +40,13 @@
                 markers[i].setIcon('img/blackPlane.png');
                 console.log("after changing picture");
             });*/
+
+            showFlightsMarkers(map);
         }
 
         async function initPageData() {
             await initServers();
-            await initFlights();
+            await fetchFlights();
             await initFlightPlans();
         }
 
@@ -52,10 +56,14 @@
             serversArray = response;
         }
 
-        async function initFlights() {
-            let date = (new Date()).toISOString();
-            //'2020-04-27T22:29:30Z'
-            const url = 'https://localhost:44308/api/Flights?relative_to=' + '2020-05-24T09:39:30Z' + '&sync_all';
+        async function fetchFlights(dateString) {
+            let date;
+
+            //dateString ? date = dateString : date = (new Date()).toISOString();
+            dateString ? date = dateString : date = '2020-05-24T09:40:35Z';
+            
+            //'2020-05-24T09:40:35Z'
+            const url = `https://localhost:44308/api/Flights?relative_to=${date}&sync_all`;
             const response = await fetch(url).then(response => response.json());
             flightsArray = response;
         }
@@ -70,8 +78,18 @@
                 };
 
                 props.map = map;
+                props.flightId = flightsArray[i].FlightId;
 
                 addMarker(props);
+            }
+        }
+
+        function updateMarkers() {
+            for (let i = 0; i < markersArray.length; i++) {
+                markersArray[i].position = {
+                    lat: flightsArray[i].location.Latitude,
+                    lng: flightsArray[i].location.Longitude
+                };
             }
         }
 
@@ -86,6 +104,8 @@
             marker.addListener('click', function () {
                 marker.setIcon('img/coloredPlane.png');
             });
+
+            markersArray.push(marker);
         }
 
         async function initFlightPlans() {
@@ -99,6 +119,30 @@
             }
 
             console.log(flightPlansArray);
+        }
+
+        async function showFlightsMarkers(map) {
+            //let date = (new Date()).toISOString();
+            //'2020-05-24T09:40:35Z'
+            let date = new Date('2020-05-24T09:40:35Z');
+            let dateString;
+
+            while (true) {
+                dateString = date.toISOString();
+
+                fetchFlights(dateString);
+
+                date.setSeconds(date.getSeconds() + 1);
+
+                await sleep(1000);
+
+                addFlightsMarkersToMap(map);
+                //updateMarkers();
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
 
     </script>

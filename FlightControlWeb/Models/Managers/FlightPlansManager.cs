@@ -23,7 +23,7 @@ namespace FlightControlWeb.Models.Managers
                 DateTime = DateTime.Parse("2020-04-27T19:29:26Z")},
                 Segments = new Segment[1] { new Segment { Longitude = 26.95, Latitude = 41.78, TimespanSeconds = 950 } } },
             new FlightPlan{ FlightId = "UA091", Passengers = 450, CompanyName = "United Airlines",
-                InitialLocation = new InitialLocation{ Longitude = 5, Latitude = 128, 
+                InitialLocation = new InitialLocation{ Longitude = 5, Latitude = 72, 
                 DateTime = DateTime.Parse("2020-05-24T09:40:03Z") },
                 Segments = new Segment[3] { new Segment { Longitude = 52, Latitude = 87, TimespanSeconds = 162 },
                 new Segment { Longitude = 88, Latitude = 63, TimespanSeconds = 477 },

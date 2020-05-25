@@ -21,14 +21,12 @@ namespace FlightControlWeb.Controllers
     {
         private FlightsManager flightsManager = new FlightsManager();
         private FlightPlansManager flightPlansManager = new FlightPlansManager();
-        private DateTime relativeToTime;
 
         // GET: api/Flights
         [HttpGet]
         public string Get(DateTime relative_to)
         {
             List<Flight> activeFlights = new List<Flight>();
-            relativeToTime = relative_to;
 
             //DateTime dateTime = TimeZoneInfo.ConvertTimeToUtc(relative_to);
             bool syncAll = Request.Query.Keys.Contains("sync_all");
@@ -98,15 +96,25 @@ namespace FlightControlWeb.Controllers
 
         private void updateFlightsLocation(DateTime relative_to)
         {
-            foreach(Flight flight in flightsManager.GetAllFlights())
+            Location location;
+
+            foreach (Flight flight in flightsManager.GetAllFlights())
             {
-                updateLocationBySegment(flight, flightPlansManager.GetFlightPlanById(flight.FlightId), relative_to);
+                location = updateLocationBySegment(flight,
+                    flightPlansManager.GetFlightPlanById(flight.FlightId), relative_to);
+                if (location != null)
+                {
+                    flight.Longitude = location.Longitude;
+                    flight.Latitude = location.Latitude;
+                }
             }
         } 
 
 
-        private void updateLocationBySegment(Flight flight, FlightPlan flightPlan, DateTime relative_to)
+        private Location updateLocationBySegment(Flight flight, FlightPlan flightPlan, DateTime relative_to)
         {
+            Location location = null;
+
             DateTime flightTime = flight.DateTime;
             DateTime timeAfterSegment = flight.DateTime;
             double lastLongitude = flight.Longitude;
@@ -118,16 +126,16 @@ namespace FlightControlWeb.Controllers
 
                 if ((flightTime <= relative_to) && (relative_to <= timeAfterSegment))
                 {
-                    // Need to send the last time, long and lat (not the initial!!!)
-                    Location location = calculateFlightLocation(lastLongitude, lastLatitude, flightTime,
+                    location = calculateFlightLocation(lastLongitude, lastLatitude, flightTime,
                         timeAfterSegment, segment, relative_to);
                     //Location location = calculateFlightLocation(flight, segment, relative_to, timeAfterSegment);
-                    break;
                 }
                 flightTime = timeAfterSegment;
                 lastLongitude = segment.Longitude;
                 lastLatitude = segment.Latitude;
             }
+
+            return location;
         }
 
         private Location calculateFlightLocation(double initialLongitude, double initialLatitude,

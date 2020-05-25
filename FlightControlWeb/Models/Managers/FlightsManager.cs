@@ -14,7 +14,7 @@ namespace FlightControlWeb.Models.Managers
                 CompanyName = "Swiss Air", DateTime = DateTime.Parse("2020-04-27T19:30:26Z"), IsExternal = true },
             new Flight{ FlightId = "TK6140", Longitude = 26.65, Latitude = 41.13, Passengers = 143,
                 CompanyName = "Turkish Airlines", DateTime = DateTime.Parse("2020-04-27T19:29:26Z"), IsExternal = false },
-            new Flight{ FlightId = "UA091", Longitude = 5, Latitude = 128, Passengers = 450,
+            new Flight{ FlightId = "UA091", Longitude = 5, Latitude = 72, Passengers = 450,
                 CompanyName = "United Airlines", DateTime = DateTime.Parse("2020-05-24T09:40:03Z"), IsExternal = true },
             new Flight{ FlightId = "BA413", Longitude = 86, Latitude = 21, Passengers = 330,
                 CompanyName = "British Airways", DateTime = DateTime.Parse("2020-05-24T09:35:56Z"), IsExternal = false }
