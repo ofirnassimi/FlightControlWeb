@@ -19,16 +19,16 @@
         let flightsArray;
         let flightPlansArray = [];
         let markersArray = [];
+        let map;
 
         async function startApplication() {
             await initPageData();
             initMap();
-            //showFlightsMarkers(map);
         }
 
         function initMap() {
             let myLocation = { lat: 32.005443, lng: 34.885545 };
-            let map = new google.maps.Map(document.getElementById('map'), {
+            map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 8,
                 center: myLocation
             });
@@ -47,7 +47,7 @@
         async function initPageData() {
             await initServers();
             await fetchFlights();
-            await initFlightPlans();
+            await fetchFlightPlans();
         }
 
         async function initServers() {
@@ -60,7 +60,7 @@
             let date;
 
             //dateString ? date = dateString : date = (new Date()).toISOString();
-            dateString ? date = dateString : date = '2020-05-24T09:40:35Z';
+            dateString ? date = dateString : date = '2020-05-24T09:03:50Z';
             
             //'2020-05-24T09:40:35Z'
             const url = `https://localhost:44308/api/Flights?relative_to=${date}&sync_all`;
@@ -68,7 +68,7 @@
             flightsArray = response;
         }
 
-        function addFlightsMarkersToMap(map) {
+        function addFlightsMarkersToMap() {
             let props = {};
 
             for (let i = 0; i < flightsArray.length; i++) {
@@ -84,19 +84,22 @@
             }
         }
 
-        function updateMarkers() {
-            for (let i = 0; i < markersArray.length; i++) {
-                markersArray[i].position = {
-                    lat: flightsArray[i].location.Latitude,
-                    lng: flightsArray[i].location.Longitude
-                };
+        function updateMarker(marker) {
+            let newLatLng;
+
+            for (let i = 0; i < flightsArray.length; i++) {
+                if (marker.flightId == flightsArray[i].FlightId) {
+                    newLatLng = new google.maps.LatLng(flightsArray[i].Latitude, flightsArray[i].Longitude);
+                    marker.setPosition(newLatLng);
+                }
             }
         }
 
         function addMarker(props) {
             let marker = new google.maps.Marker({
                 position: props.location,
-                map: props.map
+                map: props.map,
+                flightId: props.flightId
             });
 
             marker.setIcon('img/blackPlane.png');
@@ -108,36 +111,36 @@
             markersArray.push(marker);
         }
 
-        async function initFlightPlans() {
+        async function fetchFlightPlans() {
             let flightId;
 
             for (let i = 0; i < flightsArray.length; i++) {
-                flightId = flightsArray[i].FlightId;
-                const url = 'https://localhost:44308/api/FlightPlan/' + flightId;
-                const response = await fetch(url).then(response => response.json());
-                flightPlansArray.push(response);
+                if (!flightPlansArray.some(plan => plan.FlightId === flightsArray[i].FlightId)) {
+                    flightId = flightsArray[i].FlightId;
+                    const url = 'https://localhost:44308/api/FlightPlan/' + flightId;
+                    const response = await fetch(url).then(response => response.json());
+                    flightPlansArray.push(response);
+                }
             }
-
-            console.log(flightPlansArray);
         }
 
-        async function showFlightsMarkers(map) {
+        async function showFlightsMarkers() {
             //let date = (new Date()).toISOString();
             //'2020-05-24T09:40:35Z'
-            let date = new Date('2020-05-24T09:40:35Z');
+            let date = new Date('2020-05-24T09:04:30Z');
             let dateString;
 
             while (true) {
                 dateString = date.toISOString();
 
-                fetchFlights(dateString);
+                await fetchFlights(dateString);
+                await fetchFlightPlans();
 
                 date.setSeconds(date.getSeconds() + 1);
 
                 await sleep(1000);
 
-                addFlightsMarkersToMap(map);
-                //updateMarkers();
+                handleMarkers();
             }
         }
 
@@ -145,6 +148,38 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
+        function handleMarkers() {
+            removeIrrelevantMarkers();
+
+            for (let i = 0; i < flightsArray.length; i++) {
+                if (markersArray.some(marker => marker.flightId === flightsArray[i].FlightId)) {
+                    updateMarker(markersArray[i]);
+                } else {
+                    let props = {};
+
+                    props.location = {
+                        lat: flightsArray[i].Latitude,
+                        lng: flightsArray[i].Longitude
+                    };
+
+                    props.map = map;
+                    props.flightId = flightsArray[i].FlightId;
+
+                    addMarker(props);
+                }
+            }
+        }
+
+        function removeIrrelevantMarkers() {
+            const markersArrayInitialLength = markersArray.length;
+
+            for (let i = 0; i < markersArrayInitialLength; i++) {
+                if (!flightsArray.some(flight => flight.FlightId === markersArray[i].flightId)) {
+                    markersArray[i].setMap(null);
+                    markersArray.splice(i, 1);
+                }
+            }
+        }
     </script>
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=startApplication">
