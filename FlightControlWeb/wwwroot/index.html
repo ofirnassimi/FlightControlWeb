@@ -33,7 +33,13 @@
                 center: myLocation
             });
 
-            addFlightsMarkersToMap(map);            
+            addFlightsMarkersToMap(map);
+
+            map.addListener('click', function () {
+                for (let i = 0; i < markersArray.length; i++) {
+                    markersArray[i].setIcon('img/blackPlane.png');
+                }
+            })
 
             //not working!!!!!!!!!
             /*google.maps.event.addListener(map, 'click', function () {
