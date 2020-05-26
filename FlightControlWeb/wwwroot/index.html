@@ -20,6 +20,7 @@
         let flightPlansArray = [];
         let markersArray = [];
         let map;
+        let flightPath;
 
         async function startApplication() {
             await initPageData();
@@ -36,16 +37,8 @@
             addFlightsMarkersToMap(map);
 
             map.addListener('click', function () {
-                for (let i = 0; i < markersArray.length; i++) {
-                    markersArray[i].setIcon('img/blackPlane.png');
-                }
+                initMarkers();
             })
-
-            //not working!!!!!!!!!
-            /*google.maps.event.addListener(map, 'click', function () {
-                markers[i].setIcon('img/blackPlane.png');
-                console.log("after changing picture");
-            });*/
 
             showFlightsMarkers(map);
         }
@@ -112,9 +105,14 @@
 
             marker.addListener('click', function () {
                 if (marker.icon === 'img/blackPlane.png') {
+                    const flightPlan = flightPlansArray.find(fp => fp.FlightId === marker.flightId);
+
+                    initMarkers();
                     marker.setIcon('img/coloredPlane.png');
+                    showFlightPath(flightPlan);
                 } else {
                     marker.setIcon('img/blackPlane.png');
+                    removeFlightPath();
                 }
             });
 
@@ -189,6 +187,41 @@
                     markersArray.splice(i, 1);
                 }
             }
+        }
+
+        function showFlightPath(flightPlan) {
+            const segments = [];
+
+            for (let i = 0; i < flightPlan.Segments.length; i++) {
+                segments.push({
+                    lat: flightPlan.Segments[i].Latitude,
+                    lng: flightPlan.Segments[i].Longitude
+                })
+            }
+
+            flightPath = new google.maps.Polyline({
+                path: segments,
+                geodesic: true,
+                strokeColor: '#060054',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+
+            flightPath.setMap(map);
+        }
+
+        function removeFlightPath() {
+            if (flightPath) {
+                flightPath.setMap(null);
+            }
+        }
+
+        function initMarkers() {
+            for (let i = 0; i < markersArray.length; i++) {
+                markersArray[i].setIcon('img/blackPlane.png');
+            }
+
+            removeFlightPath();
         }
     </script>
     <script async defer
