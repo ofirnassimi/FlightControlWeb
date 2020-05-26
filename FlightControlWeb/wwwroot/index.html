@@ -105,7 +105,11 @@
             marker.setIcon('img/blackPlane.png');
 
             marker.addListener('click', function () {
-                marker.setIcon('img/coloredPlane.png');
+                if (marker.icon === 'img/blackPlane.png') {
+                    marker.setIcon('img/coloredPlane.png');
+                } else {
+                    marker.setIcon('img/blackPlane.png');
+                }
             });
 
             markersArray.push(marker);
