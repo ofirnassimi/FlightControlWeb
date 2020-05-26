@@ -29,9 +29,21 @@
 
         function initMap() {
             let myLocation = { lat: 32.005443, lng: 34.885545 };
+
+            const mapBounds = {
+                north: 85,
+                south: -85,
+                west: -180,
+                east: 180
+            };
+
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 8,
-                center: myLocation
+                center: myLocation,
+                restriction: {
+                    latLngBounds: mapBounds,
+                    strictBounds: true
+                }
             });
 
             addFlightsMarkersToMap(map);
@@ -114,6 +126,8 @@
                     marker.setIcon('img/blackPlane.png');
                     removeFlightPath();
                 }
+
+                console.log(marker.position);
             });
 
             markersArray.push(marker);
@@ -185,6 +199,8 @@
                 if (!flightsArray.some(flight => flight.FlightId === markersArray[i].flightId)) {
                     markersArray[i].setMap(null);
                     markersArray.splice(i, 1);
+                    removeFlightPath();
+                    break;
                 }
             }
         }
@@ -192,11 +208,16 @@
         function showFlightPath(flightPlan) {
             const segments = [];
 
+            segments.push({
+                lat: flightPlan.InitialLocation.Latitude,
+                lng: flightPlan.InitialLocation.Longitude
+            });
+
             for (let i = 0; i < flightPlan.Segments.length; i++) {
                 segments.push({
                     lat: flightPlan.Segments[i].Latitude,
                     lng: flightPlan.Segments[i].Longitude
-                })
+                });
             }
 
             flightPath = new google.maps.Polyline({

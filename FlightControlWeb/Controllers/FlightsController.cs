@@ -117,8 +117,10 @@ namespace FlightControlWeb.Controllers
 
             DateTime flightTime = flight.DateTime;
             DateTime timeAfterSegment = flight.DateTime;
-            double lastLongitude = flight.Longitude;
-            double lastLatitude = flight.Latitude;
+            /*double lastLongitude = flight.Longitude;
+            double lastLatitude = flight.Latitude;*/
+            double lastLongitude = flightPlan.InitialLocation.Longitude;
+            double lastLatitude = flightPlan.InitialLocation.Latitude;
 
             foreach(Segment segment in flightPlan.Segments)
             {
@@ -157,28 +159,5 @@ namespace FlightControlWeb.Controllers
 
             return new Location { Longitude = relativeLongitude, Latitude = relativeLatitude };
         }
-
-
-        /*private Location calculateFlightLocation(Flight flight, Segment segment, DateTime relative_to, DateTime timeAfterSegment)
-        {
-            double initialLongitude = flight.Longitude;
-            double initialLatitude = flight.Latitude;
-            double finalLongitude = segment.Longitude;
-            double finalLatitude = segment.Latitude;
-
-            DateTime initialTime = flight.DateTime;
-            DateTime finalTime = timeAfterSegment;
-
-            double seconds = (finalTime - initialTime).TotalSeconds;
-            double relativeSeconds = (relative_to - initialTime).TotalSeconds;
-            double totalDistance = Math.Sqrt(Math.Pow(finalLongitude - initialLongitude, 2) + Math.Pow(finalLatitude - initialLatitude, 2));
-
-            double relativeDistance = (relativeSeconds * totalDistance) / seconds;
-
-            double longt = initialLongitude + ((finalLongitude - initialLongitude) * (relativeDistance / totalDistance));
-            double lat = initialLatitude + ((finalLatitude - initialLatitude) * (relativeDistance / totalDistance));
-
-            return new Location { Longitude = longt, Latitude = lat };
-        }*/
     }
 }
