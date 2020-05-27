@@ -9,11 +9,99 @@
             height: 400px;
             width: 50%;
         }
+        ul {
+            columns: 2;
+            -webkit-columns: 2;
+            -moz-columns: 2;
+        }
+        .columns {
+            float: left;
+            position: relative;
+            margin-right: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
     </style>
     <link rel="shortcut icon" href="" >
 </head>
 <body>
     <div id="map"></div>
+
+    <ul id="flight-plan-details-ul">
+        <li id="flight-id-li">
+            <div>
+                Flight ID:
+            </div>
+            <div id="flight-id-value">
+                
+            </div>
+        </li>
+        <li id="boarding-location-li">
+            <div>
+                Boarding Location:
+            </div>
+            <div id="boarding-location-value">
+                
+            </div>
+        </li>
+        <li id="landing-location-li">
+            <div>
+                Landing Location:
+            </div>
+            <div id="landing-location-value">
+
+            </div>
+        </li>
+        <li id="boarding-time-li">
+            <div>
+                Boarding Time:
+            </div>
+            <div id="boarding-time-value">
+
+            </div>
+        </li>
+        <li id="landing-time-li">
+            <div>
+                Landing Time:
+            </div>
+            <div id="landing-time-value">
+
+            </div>
+        </li>
+        <li id="company-name-li">
+            <div>
+                Company Name:
+            </div>
+            <div id="company-name-value">
+
+            </div>
+        </li>
+        <li id="passengers-li">
+            <div>
+                Passengers:
+            </div>
+            <div id="passengers-value">
+
+            </div>
+        </li>
+    </ul>
+
+    <table id="flights-table">
+        <thead>
+            <tr>
+                <th>Flight ID</th>
+                <th>Company Name</th>
+                <th>Boarding Time</th>
+                <th>Is External</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- To be filled by JavaScript -->
+        </tbody>
+    </table>
+
     <script>
         let serversArray;
         let flightsArray;
@@ -22,9 +110,12 @@
         let map;
         let flightPath;
 
+        //window.onload = addRowHandlers();
+
         async function startApplication() {
             await initPageData();
             initMap();
+            initFlightsTable();
         }
 
         function initMap() {
@@ -122,15 +213,18 @@
                     initMarkers();
                     marker.setIcon('img/coloredPlane.png');
                     showFlightPath(flightPlan);
+                    updateFlightPlanTable(flightPlan);
                 } else {
                     marker.setIcon('img/blackPlane.png');
                     removeFlightPath();
+                    clearFlightPlanDetailsUl();
                 }
 
                 console.log(marker.position);
             });
 
             markersArray.push(marker);
+            initFlightsTable();
         }
 
         async function fetchFlightPlans() {
@@ -200,6 +294,8 @@
                     markersArray[i].setMap(null);
                     markersArray.splice(i, 1);
                     removeFlightPath();
+                    initFlightsTable();
+                    clearFlightPlanDetailsUl();
                     break;
                 }
             }
@@ -240,10 +336,144 @@
         function initMarkers() {
             for (let i = 0; i < markersArray.length; i++) {
                 markersArray[i].setIcon('img/blackPlane.png');
+                clearFlightPlanDetailsUl();
             }
 
             removeFlightPath();
         }
+
+        function updateFlightPlanTable(flightPlan) {
+            const boardingLat = flightPlan.InitialLocation.Latitude;
+            const boardingLng = flightPlan.InitialLocation.Longitude;
+            const landingLat = flightPlan.Segments[flightPlan.Segments.length - 1].Latitude;
+            const landingLng = flightPlan.Segments[flightPlan.Segments.length - 1].Longitude;
+            const landingTime = calculateLandingTime(flightPlan);
+
+            document.getElementById("flight-id-value").innerHTML = flightPlan.FlightId;
+            document.getElementById("boarding-location-value").innerHTML = boardingLat + ', ' + boardingLng;
+            document.getElementById("landing-location-value").innerHTML = landingLat + ', ' + landingLng;
+            document.getElementById("boarding-time-value").innerHTML = flightPlan.InitialLocation.DateTime;
+            document.getElementById("landing-time-value").innerHTML = landingTime;
+            document.getElementById("company-name-value").innerHTML = flightPlan.CompanyName;
+            document.getElementById("passengers-value").innerHTML = flightPlan.Passengers;
+
+        }
+
+        function calculateLandingTime(flightPlan) {
+            let landingTime = new Date(flightPlan.InitialLocation.DateTime);
+            let segments = flightPlan.Segments;
+
+            for (let i = 0; i < segments.length; i++) {
+                landingTime.setSeconds(landingTime.getSeconds() + segments[i].TimespanSeconds);
+            }
+
+            return landingTime;
+        }
+
+        const flightsTableBody = document.querySelector("#flights-table > tbody");
+
+        function initFlightsTable() {
+            clearFlightsTable();
+
+            // Show only internal flights
+            flightsArray.forEach((flight) => {
+                if (!flight.IsExternal) {
+                    addFligthToTable(flight);
+                }
+            });
+
+            // Show only external flights
+            flightsArray.forEach((flight) => {
+                if (flight.IsExternal) {
+                    addFligthToTable(flight);
+                }
+            });
+
+            document.addEventListener("flights-table", () => {
+                const rows = document.querySelectorAll("tr");
+
+                rows.forEach(row => {
+                    row.addEventListener("click", () => {
+                        console.log(row);
+                    });
+                });
+            });
+        }
+
+        function addFligthToTable(flight) {
+            const tr = document.createElement("tr");
+
+            //Flight ID
+            const td = document.createElement("td");
+            td.textContent = flight.FlightId;
+            tr.appendChild(td);
+
+            //Company Name
+            const td1 = document.createElement("td");
+            td1.textContent = flight.CompanyName;
+            tr.appendChild(td1);
+
+            //Boarding Time
+            const td2 = document.createElement("td");
+            td2.textContent = flight.DateTime;
+            tr.appendChild(td2);
+
+            //Is External
+            const td3 = document.createElement("td");
+            td3.textContent = flight.IsExternal;
+            tr.appendChild(td3);
+
+            flightsTableBody.appendChild(tr);
+        }
+
+        function clearFlightPlanDetailsUl() {
+            document.getElementById("flight-id-value").innerHTML = "";
+            document.getElementById("boarding-location-value").innerHTML = "";
+            document.getElementById("landing-location-value").innerHTML = "";
+            document.getElementById("boarding-time-value").innerHTML = "";
+            document.getElementById("landing-time-value").innerHTML = "";
+            document.getElementById("company-name-value").innerHTML = "";
+            document.getElementById("passengers-value").innerHTML = "";
+        }
+
+        function clearFlightsTable() {
+            let tableRef = document.getElementById("flights-table");
+            while (tableRef.rows.length > 1) {
+                tableRef.deleteRow(1);
+            }
+        }
+
+        /*function addRowHandlers() {
+            const flightsTable = document.getElementById("flights-table");
+            const rows = flightsTable.getElementsByTagName("tr");
+            for (let i = 0; i < rows.length; i++) {
+                let currentRow = flightsTable.rows[i];
+                let createClickHandler = function (row) {
+                    return function () {
+                        let cell = row.getElementsByTagName("td")[0];
+
+                        console.log(cell);
+
+                        /*if (marker.icon === 'img/blackPlane.png') {
+                            const flightPlan = flightPlansArray.find(fp => fp.FlightId === marker.flightId);
+
+                            initMarkers();
+                            marker.setIcon('img/coloredPlane.png');
+                            showFlightPath(flightPlan);
+                            updateFlightPlanTable(flightPlan);
+                        } else {
+                            marker.setIcon('img/blackPlane.png');
+                            removeFlightPath();
+                            clearFlightPlanDetailsUl();
+                        }
+                    };
+                };
+                currentRow.onclick = createClickHandler(currentRow);
+            }
+        }*/
+
+        
+
     </script>
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=startApplication">
