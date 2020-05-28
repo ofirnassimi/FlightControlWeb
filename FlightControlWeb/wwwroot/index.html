@@ -4,29 +4,49 @@
     <title>My Google Map</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <style>
         #map {
             height: 400px;
             width: 50%;
         }
+
         ul {
             columns: 2;
             -webkit-columns: 2;
             -moz-columns: 2;
         }
+
         .columns {
             float: left;
             position: relative;
             margin-right: 20px;
         }
-        table, th, td {
+
+        table {
+            border: 1px solid gray;
+            width: 50%;
+            text-align: center;
+        }
+
+        table#flights-table tbody tr {
+            background-color: #ffccff;
+            cursor: pointer;
+        }
+
+
+        /*th, td {
             border: 1px solid black;
             border-collapse: collapse;
-        }
+        }*/
     </style>
-    <link rel="shortcut icon" href="" >
+    <link rel="shortcut icon" href="">
 </head>
 <body>
+    <p>This is a paragraph.</p>
+    <p>This is another paragraph.</p>
+    <button>Click me</button>
     <div id="map"></div>
 
     <ul id="flight-plan-details-ul">
@@ -35,7 +55,7 @@
                 Flight ID:
             </div>
             <div id="flight-id-value">
-                
+
             </div>
         </li>
         <li id="boarding-location-li">
@@ -43,7 +63,7 @@
                 Boarding Location:
             </div>
             <div id="boarding-location-value">
-                
+
             </div>
         </li>
         <li id="landing-location-li">
@@ -90,7 +110,7 @@
 
     <table id="flights-table">
         <thead>
-            <tr>
+            <tr class="rows">
                 <th>Flight ID</th>
                 <th>Company Name</th>
                 <th>Boarding Time</th>
@@ -109,6 +129,16 @@
         let markersArray = [];
         let map;
         let flightPath;
+
+        const flightsTableBody = document.querySelector("#flights-table > tbody");
+
+        $(document).ready(function () {
+            $("button").click(function () {
+                $("p").hide();
+            });
+        });
+
+        
 
         //window.onload = addRowHandlers();
 
@@ -154,7 +184,7 @@
 
         async function initServers() {
             const response = await fetch('https://localhost:44308/api/servers')
-                    .then(response => response.json());
+                .then(response => response.json());
             serversArray = response;
         }
 
@@ -163,7 +193,7 @@
 
             //dateString ? date = dateString : date = (new Date()).toISOString();
             dateString ? date = dateString : date = '2020-05-24T09:03:50Z';
-            
+
             //'2020-05-24T09:40:35Z'
             const url = `https://localhost:44308/api/Flights?relative_to=${date}&sync_all`;
             const response = await fetch(url).then(response => response.json());
@@ -370,7 +400,7 @@
             return landingTime;
         }
 
-        const flightsTableBody = document.querySelector("#flights-table > tbody");
+        
 
         function initFlightsTable() {
             clearFlightsTable();
@@ -389,15 +419,7 @@
                 }
             });
 
-            document.addEventListener("flights-table", () => {
-                const rows = document.querySelectorAll("tr");
-
-                rows.forEach(row => {
-                    row.addEventListener("click", () => {
-                        console.log(row);
-                    });
-                });
-            });
+            handleFlightsTable();
         }
 
         function addFligthToTable(flight) {
@@ -443,41 +465,57 @@
             }
         }
 
-        /*function addRowHandlers() {
-            const flightsTable = document.getElementById("flights-table");
-            const rows = flightsTable.getElementsByTagName("tr");
-            for (let i = 0; i < rows.length; i++) {
-                let currentRow = flightsTable.rows[i];
-                let createClickHandler = function (row) {
-                    return function () {
-                        let cell = row.getElementsByTagName("td")[0];
+        function handleFlightsTable() {
+            let pickeduprow;
 
-                        console.log(cell);
+            $(document).ready(function () {
+                $("#flights-table tbody tr").on("click", function (event) {
 
-                        /*if (marker.icon === 'img/blackPlane.png') {
-                            const flightPlan = flightPlansArray.find(fp => fp.FlightId === marker.flightId);
+                    // First click
+                    if (pickeduprow == null) {
+                        pickeduprow = $(this);
+                        pickeduprow.css("background-color", "red");
 
-                            initMarkers();
-                            marker.setIcon('img/coloredPlane.png');
-                            showFlightPath(flightPlan);
-                            updateFlightPlanTable(flightPlan);
+                        let rowFlightId = $(this).find("td").eq(0).html();
+
+                        handleRowMarker(rowFlightId);
+
+                    } else {
+                        // This row is already clicked (find if IDs are equal)
+                        if ($(this).find("td").eq(0).html() == pickeduprow.find("td").eq(0).html()) {
+                            $(this).css("background-color", "#ffccff");
+                            handleRowMarker($(this).find("td").eq(0).html());
                         } else {
-                            marker.setIcon('img/blackPlane.png');
-                            removeFlightPath();
-                            clearFlightPlanDetailsUl();
+                            pickeduprow.css("background-color", "#ffccff");
+                            pickeduprow = $(this);
+                            pickeduprow.css("background-color", "red");
+                            handleRowMarker($(this).find("td").eq(0).html());
                         }
-                    };
-                };
-                currentRow.onclick = createClickHandler(currentRow);
-            }
-        }*/
+                    }
+                });
+            });
+        }
 
-        
+        function handleRowMarker(rowFlightId) {
+            const marker = markersArray.find(flightMarker => flightMarker.flightId === rowFlightId);
+            if (marker.icon === 'img/blackPlane.png') {
+                const flightPlan = flightPlansArray.find(fp => fp.FlightId === marker.flightId);
+
+                initMarkers();
+                marker.setIcon('img/coloredPlane.png');
+                showFlightPath(flightPlan);
+                updateFlightPlanTable(flightPlan);
+            } else {
+                marker.setIcon('img/blackPlane.png');
+                removeFlightPath();
+                clearFlightPlanDetailsUl();
+            }
+        }
 
     </script>
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=startApplication">
-            //src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=initMap">
+                //src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=initMap">
     </script>
 </body>
 </html>
