@@ -31,7 +31,6 @@
         }
 
         table#flights-table tbody tr {
-            background-color: #ffccff;
             cursor: pointer;
         }
 
@@ -39,14 +38,13 @@
         /*th, td {
             border: 1px solid black;
             border-collapse: collapse;
+
+            background-color: #ffccff;
         }*/
     </style>
     <link rel="shortcut icon" href="">
 </head>
 <body>
-    <p>This is a paragraph.</p>
-    <p>This is another paragraph.</p>
-    <button>Click me</button>
     <div id="map"></div>
 
     <ul id="flight-plan-details-ul">
@@ -117,7 +115,7 @@
                 <th>Is External</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="flights-table-body">
             <!-- To be filled by JavaScript -->
         </tbody>
     </table>
@@ -129,18 +127,9 @@
         let markersArray = [];
         let map;
         let flightPath;
+        let pickeduprow;
 
         const flightsTableBody = document.querySelector("#flights-table > tbody");
-
-        $(document).ready(function () {
-            $("button").click(function () {
-                $("p").hide();
-            });
-        });
-
-        
-
-        //window.onload = addRowHandlers();
 
         async function startApplication() {
             await initPageData();
@@ -170,8 +159,39 @@
             addFlightsMarkersToMap(map);
 
             map.addListener('click', function () {
+                /*for (let i = 0; i < markersArray.length; i++) {
+                    let marker = markersArray[i];
+
+                    if (marker.icon == 'img/coloredPlane.png') {
+                        marker.setIcon('img/blackPlane.png');
+                        removeFlightPath();
+                        clearFlightPlanDetailsUl();
+                    }
+                }*/
+
+
                 initMarkers();
-            })
+
+                for (let i = 0; i < markersArray.length; i++) {
+                    let marker = markersArray[i];
+                    let row = document.getElementById(marker.flightId);
+
+                    if (row.style.backgroundColor == "rgb(255, 0, 0)") {
+                        row.style.backgroundColor = '#ffccff';
+                    }
+                    /*else {
+                        let table = document.getElementById('flights-table-body');
+
+                        for (let i = 0; i < table.children.length; i++) {
+                            if (table.children[i].style.backgroundColor == "rgb(255, 0, 0)") {
+                                table.children[i].style.backgroundColor = '#ffccff';
+                            }
+                        }
+
+                        row.style.backgroundColor = 'rgb(255,0,0)';
+                    }*/
+                }
+            });
 
             showFlightsMarkers(map);
         }
@@ -237,24 +257,47 @@
             marker.setIcon('img/blackPlane.png');
 
             marker.addListener('click', function () {
-                if (marker.icon === 'img/blackPlane.png') {
-                    const flightPlan = flightPlansArray.find(fp => fp.FlightId === marker.flightId);
+                //$('#flights-table-body').find('#' + props.flightId).trigger('click');
 
-                    initMarkers();
-                    marker.setIcon('img/coloredPlane.png');
-                    showFlightPath(flightPlan);
-                    updateFlightPlanTable(flightPlan);
-                } else {
-                    marker.setIcon('img/blackPlane.png');
-                    removeFlightPath();
-                    clearFlightPlanDetailsUl();
-                }
-
-                console.log(marker.position);
+                markerAndTableClickFunctionallity(marker);
             });
 
             markersArray.push(marker);
             initFlightsTable();
+        }
+
+        function markerAndTableClickFunctionallity(marker) {
+            // Handle marker
+            if (marker.icon === 'img/blackPlane.png') {
+                const flightPlan = flightPlansArray.find(fp => fp.FlightId === marker.flightId);
+
+                initMarkers();
+                marker.setIcon('img/coloredPlane.png');
+                showFlightPath(flightPlan);
+                updateFlightPlanTable(flightPlan);
+            } else {
+                marker.setIcon('img/blackPlane.png');
+                removeFlightPath();
+                clearFlightPlanDetailsUl();
+            }
+
+            // Handle table
+
+            let row = document.getElementById(marker.flightId);
+
+            if (row.style.backgroundColor == "rgb(255, 0, 0)") {
+                row.style.backgroundColor = '#ffccff';
+            } else {
+                let table = document.getElementById('flights-table-body');
+
+                for (let i = 0; i < table.children.length; i++) {
+                    if (table.children[i].style.backgroundColor == "rgb(255, 0, 0)") {
+                        table.children[i].style.backgroundColor = '#ffccff';
+                    }
+                }
+
+                row.style.backgroundColor = 'rgb(255,0,0)';
+            }
         }
 
         async function fetchFlightPlans() {
@@ -400,30 +443,52 @@
             return landingTime;
         }
 
-        
-
         function initFlightsTable() {
+            let redRowId;
+
+            if (flightsTableBody.children.length !== 0) {
+                for (let i = 0; i < flightsTableBody.children.length; i++) {
+                    if (flightsTableBody.children[i].style.backgroundColor == "rgb(255, 0, 0)") {
+                        redRowId = flightsTableBody.children[i].id;
+                    }
+                }
+            }
+
             clearFlightsTable();
 
             // Show only internal flights
             flightsArray.forEach((flight) => {
                 if (!flight.IsExternal) {
-                    addFligthToTable(flight);
+                    addFlightToTableLogic(flight, redRowId);
                 }
             });
 
             // Show only external flights
             flightsArray.forEach((flight) => {
                 if (flight.IsExternal) {
-                    addFligthToTable(flight);
+                    addFlightToTableLogic(flight, redRowId);
                 }
             });
 
             handleFlightsTable();
         }
 
-        function addFligthToTable(flight) {
+        function addFlightToTableLogic(flight, redRowId) {
+            if (flight.FlightId === redRowId) {
+                addFligthToTable(flight, redRowId);
+            } else {
+                addFligthToTable(flight);
+            }
+        }
+
+        function addFligthToTable(flight, redRowId) {
             const tr = document.createElement("tr");
+            tr.setAttribute("id", flight.FlightId);
+            if (redRowId) {
+                tr.style.backgroundColor = '#ff0000';
+            } else {
+                tr.style.backgroundColor = '#ffccff';
+            }
 
             //Flight ID
             const td = document.createElement("td");
@@ -466,52 +531,30 @@
         }
 
         function handleFlightsTable() {
-            let pickeduprow;
-
             $(document).ready(function () {
                 $("#flights-table tbody tr").on("click", function (event) {
+                    const marker = markersArray.find(flightMarker => flightMarker.flightId === ($(this).find("td").eq(0).html()));
 
-                    // First click
-                    if (pickeduprow == null) {
-                        pickeduprow = $(this);
-                        pickeduprow.css("background-color", "red");
-
-                        let rowFlightId = $(this).find("td").eq(0).html();
-
-                        handleRowMarker(rowFlightId);
-
-                    } else {
-                        // This row is already clicked (find if IDs are equal)
-                        if ($(this).find("td").eq(0).html() == pickeduprow.find("td").eq(0).html()) {
-                            $(this).css("background-color", "#ffccff");
-                            handleRowMarker($(this).find("td").eq(0).html());
-                        } else {
-                            pickeduprow.css("background-color", "#ffccff");
-                            pickeduprow = $(this);
-                            pickeduprow.css("background-color", "red");
-                            handleRowMarker($(this).find("td").eq(0).html());
-                        }
-                    }
+                    markerAndTableClickFunctionallity(marker);
                 });
             });
         }
 
-        function handleRowMarker(rowFlightId) {
-            const marker = markersArray.find(flightMarker => flightMarker.flightId === rowFlightId);
-            if (marker.icon === 'img/blackPlane.png') {
-                const flightPlan = flightPlansArray.find(fp => fp.FlightId === marker.flightId);
+        function handleRow(marker) {
+            let rowFlightId;
+            const flightsTable = document.getElementById("flights-table");
 
-                initMarkers();
-                marker.setIcon('img/coloredPlane.png');
-                showFlightPath(flightPlan);
-                updateFlightPlanTable(flightPlan);
-            } else {
-                marker.setIcon('img/blackPlane.png');
-                removeFlightPath();
-                clearFlightPlanDetailsUl();
+            console.log(marker.flightId);
+
+            for (let i = 1, row; row = flightsTable.rows[i]; i++) {
+                rowFlightId = row.cells[0].innerHTML;
+                if (marker.flightId == rowFlightId) {
+                    // If row is red, change to pink and hahefech
+                    // Bold row in table
+                    row.css("background-color", "red");
+                }
             }
         }
-
     </script>
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=startApplication">
