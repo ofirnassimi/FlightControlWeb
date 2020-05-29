@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using FlightControlWeb.Models;
 using FlightControlWeb.Models.Managers;
 using Newtonsoft.Json;
-using System.Drawing;
 
 namespace FlightControlWeb.Controllers
 {

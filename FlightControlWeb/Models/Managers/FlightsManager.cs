@@ -6,6 +6,8 @@ namespace FlightControlWeb.Models.Managers
 {
     public class FlightsManager
     {
+        private ServersManager serversManager = new ServersManager();
+
         private static List<Flight> flights = new List<Flight>()
         {
             new Flight{ FlightId = "LY319", Longitude = 34.88, Latitude = 32.01, Passengers = 217,

@@ -89,4 +89,10 @@ C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\bin\D
 C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\bin\Debug\netcoreapp3.1\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\bin\Debug\netcoreapp3.1\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\obj\Debug\netcoreapp3.1\FlightControlWeb.csproj.CopyComplete
+C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\bin\Debug\netcoreapp3.1\DnsClient.dll
+C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\bin\Debug\netcoreapp3.1\MongoDB.Bson.dll
+C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\bin\Debug\netcoreapp3.1\MongoDB.Driver.dll
+C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\bin\Debug\netcoreapp3.1\MongoDB.Driver.Core.dll
+C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\bin\Debug\netcoreapp3.1\MongoDB.Libmongocrypt.dll
+C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\bin\Debug\netcoreapp3.1\SharpCompress.dll
 C:\Users\Ofir Nassimi\source\repos\sapir\FlightControlWeb\FlightControlWeb\obj\Debug\netcoreapp3.1\FlightControlWeb.MvcApplicationPartsAssemblyInfo.cache

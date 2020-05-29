@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using FlightControlWeb.BL;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FlightControlWeb.Models.Managers
@@ -12,13 +13,21 @@ namespace FlightControlWeb.Models.Managers
             new Server{ ServerId = "srv-8903", ServerURL = "www.mor.com" }
         };
 
-        public void AddServer(Server server)
+        public static void AddServer(Server server)
         {
+            // Servers.Add(server);
+
             servers.Add(server);
         }
 
-        public void DeleteServer(string serverId)
+        public static void DeleteServer(string serverId)
         {
+            // Server server = Servers.GetAll().Where(srv => srv.ServerId.Equals(serverId)).FirstOrDefault();
+            //
+            // if (server != null) {
+            //     Servers.Delete(server);
+            // }
+
             Server server = servers.Where(srv => srv.ServerId.Equals(serverId)).FirstOrDefault();
 
             if (server != null) {
@@ -26,20 +35,28 @@ namespace FlightControlWeb.Models.Managers
             }
         }
     
-        public List<Server> GetAllServers()
+        public static List<Server> GetAllServers()
         {
-            return servers;
+            return Servers.GetAll();
+
+            //return servers;
         } 
         
-        public Server GetServerById(string serverId)
+        public static Server GetServerById(string serverId)
         {
-            Server server = servers.Where(srv => srv.ServerId.Equals(serverId)).FirstOrDefault();
+            // return Servers.GetAll().Where(srv => srv.ServerId.Equals(serverId)).FirstOrDefault();
 
-            return server;
+            return servers.Where(srv => srv.ServerId.Equals(serverId)).FirstOrDefault();
         }
         
-        public void UpdateServer(Server updatedServer)
+        public static void UpdateServer(Server updatedServer)
         {
+            // Server server = Servers.GetAll().Where(srv => srv.ServerId.Equals(updatedServer.ServerId)).FirstOrDefault();
+            //
+            // if (server != null) {
+            //     Servers.Update(updatedServer);
+            // }
+
             Server server = servers.Where(srv => srv.ServerId.Equals(updatedServer.ServerId)).FirstOrDefault();
 
             if (server != null)
