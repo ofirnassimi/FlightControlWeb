@@ -35,12 +35,45 @@
         }
 
 
+
+        #drop-area {
+            border: 2px dashed #ccc;
+            font-family: sans-serif;
+        }
+
+        #drop-area.highlight {
+            border-color: purple;
+        }
+
+        #fileElem {
+            display: none;
+        }
+
         /*th, td {
             border: 1px solid black;
             border-collapse: collapse;
 
             background-color: #ffccff;
         }*/
+
+        /*#drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 20px;
+            width: 480px;
+            font-family: sans-serif;
+            margin: 100px auto;
+            padding: 20px;
+            display: none;
+        }
+
+        #drop-area.highlight {
+            border-color: purple;
+        }
+
+        .my-form {
+            margin-bottom: 10px;
+        }*/
+
     </style>
     <link rel="shortcut icon" href="">
 </head>
@@ -106,19 +139,25 @@
         </li>
     </ul>
 
-    <table id="flights-table">
-        <thead>
-            <tr class="rows">
-                <th>Flight ID</th>
-                <th>Company Name</th>
-                <th>Boarding Time</th>
-                <th>Is External</th>
-            </tr>
-        </thead>
-        <tbody id="flights-table-body">
-            <!-- To be filled by JavaScript -->
-        </tbody>
-    </table>
+    <div id="drop-area">
+        <form class="my-form">
+            <input type="file" id="fileElem" multiple accept="json/*" onchange="handleFiles(this.files)">
+            <table id="flights-table">
+                <thead>
+                    <tr class="rows">
+                        <th>Flight ID</th>
+                        <th>Company Name</th>
+                        <th>Boarding Time</th>
+                        <th>Is External</th>
+                    </tr>
+                </thead>
+                <tbody id="flights-table-body">
+                    <!-- To be filled by JavaScript -->
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <p id="json-upload-error"></p>
 
     <script>
         let serversArray;
@@ -135,6 +174,8 @@
             await initPageData();
             initMap();
             initFlightsTable();
+
+            dragAndDrop();
         }
 
         function initMap() {
@@ -159,17 +200,6 @@
             addFlightsMarkersToMap(map);
 
             map.addListener('click', function () {
-                /*for (let i = 0; i < markersArray.length; i++) {
-                    let marker = markersArray[i];
-
-                    if (marker.icon == 'img/coloredPlane.png') {
-                        marker.setIcon('img/blackPlane.png');
-                        removeFlightPath();
-                        clearFlightPlanDetailsUl();
-                    }
-                }*/
-
-
                 initMarkers();
 
                 for (let i = 0; i < markersArray.length; i++) {
@@ -179,17 +209,6 @@
                     if (row.style.backgroundColor == "rgb(255, 0, 0)") {
                         row.style.backgroundColor = '#ffccff';
                     }
-                    /*else {
-                        let table = document.getElementById('flights-table-body');
-
-                        for (let i = 0; i < table.children.length; i++) {
-                            if (table.children[i].style.backgroundColor == "rgb(255, 0, 0)") {
-                                table.children[i].style.backgroundColor = '#ffccff';
-                            }
-                        }
-
-                        row.style.backgroundColor = 'rgb(255,0,0)';
-                    }*/
                 }
             });
 
@@ -555,10 +574,110 @@
                 }
             }
         }
+
+        function dragAndDrop() {
+            let dropArea = document.getElementById('drop-area');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+                //dropArea.addEventListener(eventName, handlerFunction, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            dropArea.addEventListener('drop', handleDrop, false);
+
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function highlight(e) {
+                dropArea.classList.add('highlight');
+            }
+
+            function unhighlight(e) {
+                dropArea.classList.remove('highlight');
+            }
+
+            function handleDrop(e) {
+                let dt = e.dataTransfer;
+                let files = dt.files;
+
+                handleFiles(files);
+            }
+
+            function handleFiles(files) {
+                ([...files]).forEach(uploadFile);
+            }
+
+            function uploadFile(file) {
+                fileToText(file, jsonAsText => {
+                    const jsonData = JSON.parse(jsonAsText);
+
+                    if (isArray(jsonData)) {
+                        for (let i = 0; i < jsonData.length; i++) {
+                            sendFlightPlanToServer(jsonData[i]);
+                        }
+                    } else {
+                        sendFlightPlanToServer(jsonData);
+                    }
+
+
+                });
+
+                function fileToText(file, callback) {
+                    const reader = new FileReader();
+
+                    reader.readAsText(file);
+                    reader.onload = () => {
+                        callback(reader.result);
+                    };
+                }
+
+                function isArray(jsonData) {
+                    return Object.prototype.toString.call(jsonData) === '[object Array]';
+                }
+
+                function sendFlightPlanToServer(flightPlan) {
+                    console.log(flightPlan);
+
+                    /*axios({
+                        method: 'post',
+                        url: '/login',
+                        data: flightPlan
+                    });*/
+
+                    fetch('https://localhost:44308/api/FlightPlan', {
+                        method: 'POST',
+                        body: flightPlan,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(res => {
+                        if (!res.ok) {
+                            (document.getElementById('json-upload-error')).textContent = 'Error Occured: Json File Has A Problem';
+                        }
+                        else {
+                            (document.getElementById('json-upload-error')).textContent = '';
+                            console.log(res);
+                        }
+                    });
+                }
+            }
+        }
     </script>
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=startApplication">
-                //src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=initMap">
+                        //src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=initMap">
     </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </body>
 </html>
