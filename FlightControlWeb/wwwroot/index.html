@@ -10,6 +10,8 @@
         #map {
             height: 400px;
             width: 50%;
+            float: left;
+            overflow: hidden;
         }
 
         ul {
@@ -39,6 +41,9 @@
         #drop-area {
             border: 2px dashed #ccc;
             font-family: sans-serif;
+            float: left;
+            width: 50%;
+            overflow: hidden;
         }
 
         #drop-area.highlight {
@@ -78,7 +83,28 @@
     <link rel="shortcut icon" href="">
 </head>
 <body>
-    <div id="map"></div>
+    <div id="wrapper">
+        <div id="map"></div>
+        <div id="drop-area">
+            <form class="my-form">
+                <input type="file" id="fileElem" multiple accept="json/*" onchange="handleFiles(this.files)">
+                <table id="flights-table">
+                    <thead>
+                        <tr class="rows">
+                            <th></th>
+                            <th>Flight ID</th>
+                            <th>Company Name</th>
+                            <th>Boarding Time</th>
+                            <th>Is External</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flights-table-body">
+                        <!-- To be filled by JavaScript -->
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
 
     <ul id="flight-plan-details-ul">
         <li id="flight-id-li">
@@ -139,25 +165,7 @@
         </li>
     </ul>
 
-    <div id="drop-area">
-        <form class="my-form">
-            <input type="file" id="fileElem" multiple accept="json/*" onchange="handleFiles(this.files)">
-            <table id="flights-table">
-                <thead>
-                    <tr class="rows">
-                        <th></th>
-                        <th>Flight ID</th>
-                        <th>Company Name</th>
-                        <th>Boarding Time</th>
-                        <th>Is External</th>
-                    </tr>
-                </thead>
-                <tbody id="flights-table-body">
-                    <!-- To be filled by JavaScript -->
-                </tbody>
-            </table>
-        </form>
-    </div>
+
     <p id="json-upload-error"></p>
 
     <script>
@@ -241,13 +249,21 @@
         }
 
         async function deleteFlight(flightId) {
+            for (let i = 0; i < flightsArray.length; i++) {
+                if (flightId == flightsArray[i].FlightId) {
+                    flightsArray.splice(i, 1);
+                    deleteFlightByFetch(flightId);
+                    removeIrrelevantMarkers();
+                }
+            }
+        }
+
+        async function deleteFlightByFetch(flightId) {
             const url = `https://localhost:44308/api/Flights/${flightId}`;
 
             return fetch(url, {
                 method: 'DELETE',
             }).then(response => response.json());
-
-            //const response = await fetch(url).then(response => response.json());
         }
 
         function addFlightsMarkersToMap() {
@@ -528,25 +544,9 @@
             td4.onclick = function () {
                 const flightId = flight.FlightId;
 
-                //if (td4.innerHTML == "<img src='img/trash.png' alt='hello'/>") {
-                    for (let i = 0; i < flightsArray.length; i++) {
-                        if (flightId == flightsArray[i].FlightId) {
-                            flightsArray.splice(i, 1);
-                            deleteFlight(flightId);
-                            removeIrrelevantMarkers();
-                        }
-                    }
-                //}
-
-                /*flightsArray.some(flight => flight.FlightId === flightId);
-                if (!flightsArray.some(flight => flight.FlightId === flightId)) {
-                    markersArray[i].setMap(null);
-                    markersArray.splice(i, 1);
-                    removeFlightPath();
-                    initFlightsTable();
-                    clearFlightPlanDetailsUl();
-                    break;
-                }*/
+                if (!flight.IsExternal) {
+                    deleteFlight(flightId);
+                }
             };
             tr.appendChild(td4);
 
@@ -718,7 +718,7 @@
     </script>
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=startApplication">
-                        //src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=initMap">
+                            //src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=initMap">
     </script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </body>

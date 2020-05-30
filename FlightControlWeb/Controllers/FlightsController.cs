@@ -31,7 +31,7 @@ namespace FlightControlWeb.Controllers
             //DateTime dateTime = TimeZoneInfo.ConvertTimeToUtc(relative_to);
             bool syncAll = Request.Query.Keys.Contains("sync_all");
 
-            foreach (Flight flight in flightsManager.GetAllFlights()) {
+            foreach (Flight flight in flightsManager.GetAllFlights(relative_to)) {
                 if (ValidAccordingToSyncAll(syncAll, flight) && 
                     CheckIfFlightIsRelevant(flight, relative_to))
                 {
@@ -97,8 +97,7 @@ namespace FlightControlWeb.Controllers
         private void updateFlightsLocation(DateTime relative_to)
         {
             Location location;
-
-            foreach (Flight flight in flightsManager.GetAllFlights())
+            foreach (Flight flight in flightsManager.GetAllFlights(relative_to))
             {
                 location = updateLocationBySegment(flight,
                     flightPlansManager.GetFlightPlanById(flight.FlightId), relative_to);
