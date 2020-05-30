@@ -145,6 +145,7 @@
             <table id="flights-table">
                 <thead>
                     <tr class="rows">
+                        <th></th>
                         <th>Flight ID</th>
                         <th>Company Name</th>
                         <th>Boarding Time</th>
@@ -237,6 +238,16 @@
             const url = `https://localhost:44308/api/Flights?relative_to=${date}&sync_all`;
             const response = await fetch(url).then(response => response.json());
             flightsArray = response;
+        }
+
+        async function deleteFlight(flightId) {
+            const url = `https://localhost:44308/api/Flights/${flightId}`;
+
+            return fetch(url, {
+                method: 'DELETE',
+            }).then(response => response.json());
+
+            //const response = await fetch(url).then(response => response.json());
         }
 
         function addFlightsMarkersToMap() {
@@ -509,6 +520,36 @@
                 tr.style.backgroundColor = '#ffccff';
             }
 
+            // Delete flight
+            const td4 = document.createElement("td");
+            if (!flight.IsExternal) {
+                td4.innerHTML = "<img src='img/trash.png' alt='hello'/>";
+            }
+            td4.onclick = function () {
+                const flightId = flight.FlightId;
+
+                //if (td4.innerHTML == "<img src='img/trash.png' alt='hello'/>") {
+                    for (let i = 0; i < flightsArray.length; i++) {
+                        if (flightId == flightsArray[i].FlightId) {
+                            flightsArray.splice(i, 1);
+                            deleteFlight(flightId);
+                            removeIrrelevantMarkers();
+                        }
+                    }
+                //}
+
+                /*flightsArray.some(flight => flight.FlightId === flightId);
+                if (!flightsArray.some(flight => flight.FlightId === flightId)) {
+                    markersArray[i].setMap(null);
+                    markersArray.splice(i, 1);
+                    removeFlightPath();
+                    initFlightsTable();
+                    clearFlightPlanDetailsUl();
+                    break;
+                }*/
+            };
+            tr.appendChild(td4);
+
             //Flight ID
             const td = document.createElement("td");
             td.textContent = flight.FlightId;
@@ -528,6 +569,7 @@
             const td3 = document.createElement("td");
             td3.textContent = flight.IsExternal;
             tr.appendChild(td3);
+
 
             flightsTableBody.appendChild(tr);
         }
@@ -552,7 +594,7 @@
         function handleFlightsTable() {
             $(document).ready(function () {
                 $("#flights-table tbody tr").on("click", function (event) {
-                    const marker = markersArray.find(flightMarker => flightMarker.flightId === ($(this).find("td").eq(0).html()));
+                    const marker = markersArray.find(flightMarker => flightMarker.flightId === ($(this).find("td").eq(1).html()));
 
                     markerAndTableClickFunctionallity(marker);
                 });

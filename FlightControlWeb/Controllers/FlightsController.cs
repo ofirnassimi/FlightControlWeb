@@ -45,7 +45,7 @@ namespace FlightControlWeb.Controllers
         }
 
         // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{flightId}")]
         public void Delete(string flightId)
         {
             flightsManager.DeleteFlight(flightId);
