@@ -25,6 +25,7 @@ namespace FlightControlWeb.Models.Managers
         };
 
         private ServersManager serversManager = new ServersManager();
+        private FlightPlansManager flightPlansManager = new FlightPlansManager();
 
         public void AddFlight(Flight flight)
         {
@@ -118,6 +119,7 @@ namespace FlightControlWeb.Models.Managers
 
                 foreach (Flight flight in flightsFromServer)
                 {
+                    addFlightPlanFromServer(flight, server);
                     flight.IsExternal = true;
                 }
             }
@@ -126,6 +128,53 @@ namespace FlightControlWeb.Models.Managers
                 throw e;
             }
             return flightsFromServer;
+        }
+
+
+        private void addFlightPlanFromServer(Flight flight, Server server)
+        {
+            FlightPlan flightPlanFromServer;
+            HttpClient httpClient = new HttpClient();
+            string url = server.ServerURL + "/api/FlightPlan/" + flight.FlightId;
+            try
+            {
+                WebRequest requestObject = WebRequest.Create(url);
+                requestObject.Method = "GET";
+                HttpWebResponse response = null;
+                response = (HttpWebResponse)requestObject.GetResponse();
+                string test = null;
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader sr = new StreamReader(stream);
+                    test = sr.ReadToEnd();
+                    flightPlanFromServer = (FlightPlan)JsonConvert.DeserializeObject(test, typeof(FlightPlan));
+                    flightPlanFromServer.FlightId = flight.FlightId;
+                    sr.Close();
+                }
+                flightPlansManager.AddFlightPlan(flightPlanFromServer);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+
+
+            /*HttpClient httpClient = new HttpClient();
+            string url = server.ServerURL + "/api/FlightPlan/" + flight.FlightId;
+            var response = await httpClient.GetAsync(url);
+
+            response.EnsureSuccessStatusCode();
+            string content = await response.Content.ReadAsStringAsync();
+
+            /*try
+            {
+                var content = await httpClient.GetStringAsync(url);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }*/
         }
     }
 }

@@ -6,6 +6,7 @@ using FlightControlWeb.Models;
 using FlightControlWeb.Models.Managers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Net.Http;
 
 namespace FlightControlWeb.Controllers
 {
@@ -188,6 +189,9 @@ namespace FlightControlWeb.Controllers
 
             return new Location { Longitude = relativeLongitude, Latitude = relativeLatitude };
         }
+
+
+       
 
     }
 }
