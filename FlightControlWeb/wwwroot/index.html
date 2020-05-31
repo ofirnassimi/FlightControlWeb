@@ -7,16 +7,21 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <style>
+        #wrapper {
+            display: flex;
+        }
+
         #map {
             height: 400px;
             width: 50%;
+            flex: 0 0 55%;
         }
 
-        ul {
+        /*ul {
             columns: 2;
             -webkit-columns: 2;
             -moz-columns: 2;
-        }
+        }*/
 
         .columns {
             float: left;
@@ -24,37 +29,73 @@
             margin-right: 20px;
         }
 
-        table {
-            border: 1px solid gray;
-            width: 50%;
+       
+
+        #drop-area {
+            border: 2px dashed #ccc;
+            font-family: sans-serif;
+            flex: 1;
+            margin-left: 40px;
+            margin-right: 40px;
+            border-radius: 20px;
+        }
+
+            #drop-area.highlight {
+                border-color: purple;
+            }
+
+        #flights-table {
+            width: 100%;
+            overflow: auto;
             text-align: center;
+            border-collapse: collapse;
+            border-radius: 10px;
         }
 
         table#flights-table tbody tr {
             cursor: pointer;
         }
 
-
-
-        #drop-area {
-            border: 2px dashed #ccc;
-            font-family: sans-serif;
+        table#flights-table tbody th {
+            padding: 1em;
+            background: #ddd;
+            border-bottom: 2px solid white;
         }
 
-        #drop-area.highlight {
-            border-color: purple;
+        table#flights-table tbody td {
+            /*padding: 1em;*/
+            border-bottom: 2px solid white;
         }
+
+        /*body {
+            margin: 1.5em;
+        }*/
 
         #fileElem {
             display: none;
         }
 
-        /*th, td {
+        th, td {
             border: 1px solid black;
             border-collapse: collapse;
+        }
 
-            background-color: #ffccff;
-        }*/
+        th {
+            background-color: #ffb6c1;
+        }
+
+        #flight-plan-details-ul {
+            background: #dcdcdc;
+            margin-top: 20px;
+            margin-right: 65%;
+            list-style-type: none;
+            font-family: sans-serif;
+            border-radius: 10px;
+        }
+
+        #flight-plan-details-ul li {
+            padding-bottom: 7px;
+        }
 
         /*#drop-area {
             border: 2px dashed #ccc;
@@ -78,7 +119,28 @@
     <link rel="shortcut icon" href="">
 </head>
 <body>
-    <div id="map"></div>
+    <div id="wrapper">
+        <div id="map"></div>
+        <div id="drop-area">
+            <form class="my-form">
+                <input type="file" id="fileElem" multiple accept="json/*" onchange="handleFiles(this.files)">
+                <table id="flights-table">
+                    <thead>
+                        <tr class="rows">
+                            <th></th>
+                            <th>Flight ID</th>
+                            <th>Company Name</th>
+                            <th>Boarding Time</th>
+                            <th>Is External</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flights-table-body">
+                        <!-- To be filled by JavaScript -->
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
 
     <ul id="flight-plan-details-ul">
         <li id="flight-id-li">
@@ -139,25 +201,7 @@
         </li>
     </ul>
 
-    <div id="drop-area">
-        <form class="my-form">
-            <input type="file" id="fileElem" multiple accept="json/*" onchange="handleFiles(this.files)">
-            <table id="flights-table">
-                <thead>
-                    <tr class="rows">
-                        <th></th>
-                        <th>Flight ID</th>
-                        <th>Company Name</th>
-                        <th>Boarding Time</th>
-                        <th>Is External</th>
-                    </tr>
-                </thead>
-                <tbody id="flights-table-body">
-                    <!-- To be filled by JavaScript -->
-                </tbody>
-            </table>
-        </form>
-    </div>
+    
     <p id="json-upload-error"></p>
 
     <script>
@@ -652,8 +696,28 @@
                 ([...files]).forEach(uploadFile);
             }
 
-            function uploadFile(file) {
-                fileToText(file, jsonAsText => {
+            async function uploadFile(file) {
+                const reader = await new FileReader();
+                await reader.readAsText(file);
+
+                reader.onload = async function (event) {
+                    let url = "https://localhost:44308/api/FlightPlan";
+                    let my = JSON.parse(event.target.result);
+                    let formData = new FormData();
+                    formData.append('file', my);
+                    console.log(JSON.stringify(my));
+                    await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(my)
+                    }).then(console.log("cool"))
+                };
+
+
+
+                /*fileToText(file, jsonAsText => {
                     const jsonData = JSON.parse(jsonAsText);
 
                     if (isArray(jsonData)) {
@@ -663,12 +727,10 @@
                     } else {
                         sendFlightPlanToServer(jsonData);
                     }
-
-
                 });
 
-                function fileToText(file, callback) {
-                    const reader = new FileReader();
+                async function fileToText(file, callback) {
+                    const reader = await new FileReader();
 
                     reader.readAsText(file);
                     reader.onload = () => {
@@ -681,13 +743,7 @@
                 }
 
                 function sendFlightPlanToServer(flightPlan) {
-                    console.log(flightPlan);
-
-                    /*axios({
-                        method: 'post',
-                        url: '/login',
-                        data: flightPlan
-                    });*/
+                    //console.log(flightPlan);
 
                     fetch('https://localhost:44308/api/FlightPlan', {
                         method: 'POST',
@@ -704,7 +760,7 @@
                             console.log(res);
                         }
                     });
-                }
+                }*/
             }
         }
     </script>
