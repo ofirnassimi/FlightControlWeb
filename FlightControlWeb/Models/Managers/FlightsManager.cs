@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Runtime.Serialization.Json;
 
 namespace FlightControlWeb.Models.Managers
 {
@@ -20,6 +23,8 @@ namespace FlightControlWeb.Models.Managers
                 CompanyName = "British Airways", DateTime = DateTime.Parse("2020-05-24T09:04:56Z"), IsExternal = false }
         };
 
+        private ServersManager serversManager = new ServersManager();
+
         public void AddFlight(Flight flight)
         {
             flights.Add(flight);
@@ -35,9 +40,16 @@ namespace FlightControlWeb.Models.Managers
             }
         }
 
-        public List<Flight> GetAllFlights()
+        public List<Flight> GetAllFlights(DateTime relative_to)
         {
-            // fetch data from other servers too
+            try
+            {
+                GetFlightsFromExternalServers(relative_to);
+            }
+            catch (Exception e)
+            {
+                return flights;
+            }
 
             return flights;
         }
@@ -63,5 +75,41 @@ namespace FlightControlWeb.Models.Managers
                 flight.IsExternal = updatedFlight.IsExternal;
             }
         }
+
+        private void GetFlightsFromExternalServers(DateTime relative_to)
+        {
+            List<Flight> flightsFromServer;
+            foreach(Server server in serversManager.GetAllServers())
+            {
+                try
+                {
+                    flightsFromServer = FetchFlightsFromServer(server, relative_to);
+                    flights.AddRange(flightsFromServer);
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+        }
+
+        private List<Flight> FetchFlightsFromServer(Server server, DateTime relative_to)
+        {
+            List<Flight> flightsFromServer = new List<Flight>();
+            HttpClient httpClient = new HttpClient();
+            string dateTimeString = relative_to.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            string url = server.ServerURL + "/api/Flights?relative_to=" + dateTimeString;
+            try
+            {
+                var result = httpClient.GetStringAsync(url).Result;
+                string jsonFlight = result.ToString();
+                flightsFromServer = JsonConvert.DeserializeObject<List<Flight>>(jsonFlight);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            return flightsFromServer;
+        } 
     }
 }
