@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using FlightControlWeb.Models;
 using FlightControlWeb.Models.Managers;
 using Newtonsoft.Json;
-using System.Drawing;
+using Newtonsoft.Json.Linq;
 
 namespace FlightControlWeb.Controllers
 {
@@ -52,14 +52,39 @@ namespace FlightControlWeb.Controllers
         }
 
 
+        [HttpPost]
+        public string Post([FromBody] Flight flight)
+        {
+            string x = flight.ToJson();
+            JObject json = JObject.Parse(x);
+
+            Flight f = new Flight();
+
+            f.FlightId = json["flight_id"].ToString();
+            f.Longitude = Convert.ToDouble(json["longitude"].ToString());
+            f.Latitude = Convert.ToDouble(json["latitude"].ToString());
+            f.Passengers = Int32.Parse(json["passengers"].ToString());
+            f.CompanyName = json["company_name"].ToString();
+            f.DateTime = DateTime.Parse(json["date_time"].ToString());
+            f.IsExternal = true;
+
+            flightsManager.AddFlight(f);
+            return f.FlightId;
+        }   
+
+
+
         private bool CheckIfFlightIsRelevant(Flight flight, DateTime relative_to)
         {
             DateTime landingTime = flight.DateTime;
             FlightPlan flightPlan = flightPlansManager.GetFlightPlanById(flight.FlightId);
-            
-            foreach (Segment segment in flightPlan.Segments)
+
+            if (flightPlan != null)
             {
-                landingTime = landingTime.AddSeconds(segment.TimespanSeconds);
+                foreach (Segment segment in flightPlan.Segments)
+                {
+                    landingTime = landingTime.AddSeconds(segment.TimespanSeconds);
+                }
             }
 
             DateTime relative_to_UTC = TimeZoneInfo.ConvertTimeToUtc(relative_to);
@@ -93,11 +118,11 @@ namespace FlightControlWeb.Controllers
             }
         }
 
-
         private void updateFlightsLocation(DateTime relative_to)
         {
             Location location;
-            foreach (Flight flight in flightsManager.GetAllFlights(relative_to))
+            List<Flight> allFlights = flightsManager.GetAllFlights(relative_to);
+            foreach (Flight flight in allFlights)
             {
                 location = updateLocationBySegment(flight,
                     flightPlansManager.GetFlightPlanById(flight.FlightId), relative_to);
@@ -109,27 +134,32 @@ namespace FlightControlWeb.Controllers
             }
         } 
 
-
         private Location updateLocationBySegment(Flight flight, FlightPlan flightPlan, DateTime relative_to)
         {
             Location location = null;
 
-            DateTime flightTime = flight.DateTime;
-            DateTime timeAfterSegment = flight.DateTime;
-            /*double lastLongitude = flight.Longitude;
-            double lastLatitude = flight.Latitude;*/
+            if(flightPlan == null)
+            {
+                return location;
+            }
+
+            /*DateTime flightTime = flight.DateTime;
+            DateTime timeAfterSegment = flight.DateTime;*/
             double lastLongitude = flightPlan.InitialLocation.Longitude;
             double lastLatitude = flightPlan.InitialLocation.Latitude;
 
-            foreach(Segment segment in flightPlan.Segments)
+            DateTime flightTime = TimeZoneInfo.ConvertTimeToUtc(flight.DateTime);
+            DateTime timeAfterSegment = flightTime;
+            DateTime relativeToUTC = TimeZoneInfo.ConvertTimeToUtc(relative_to);
+
+            foreach (Segment segment in flightPlan.Segments)
             {
                 timeAfterSegment = timeAfterSegment.AddSeconds(segment.TimespanSeconds);
 
-                if ((flightTime <= relative_to) && (relative_to <= timeAfterSegment))
+                if ((flightTime <= relativeToUTC) && (relativeToUTC <= timeAfterSegment))
                 {
                     location = calculateFlightLocation(lastLongitude, lastLatitude, flightTime,
-                        timeAfterSegment, segment, relative_to);
-                    //Location location = calculateFlightLocation(flight, segment, relative_to, timeAfterSegment);
+                        timeAfterSegment, segment, relativeToUTC);
                 }
                 flightTime = timeAfterSegment;
                 lastLongitude = segment.Longitude;
@@ -158,5 +188,6 @@ namespace FlightControlWeb.Controllers
 
             return new Location { Longitude = relativeLongitude, Latitude = relativeLatitude };
         }
+
     }
 }

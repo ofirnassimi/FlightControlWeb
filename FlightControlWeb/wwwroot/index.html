@@ -387,8 +387,9 @@
             let flightId;
 
             for (let i = 0; i < flightsArray.length; i++) {
-                if (!flightPlansArray.some(plan => plan.FlightId === flightsArray[i].FlightId)) {
-                    flightId = flightsArray[i].FlightId;
+                if (!flightPlansArray.some(plan => plan.FlightId === flightsArray[i].flight_id)) {
+                    flightId = flightsArray[i].flight_id;
+                    //flightId = flightsArray[i].FlightId;
                     const url = 'https://localhost:44308/api/FlightPlan/' + flightId;
                     const response = await fetch(url).then(response => response.json());
                     flightPlansArray.push(response);
@@ -698,27 +699,7 @@
             }
 
             async function uploadFile(file) {
-                const reader = await new FileReader();
-                await reader.readAsText(file);
-
-                reader.onload = async function (event) {
-                    let url = "https://localhost:44308/api/FlightPlan";
-                    let my = JSON.parse(event.target.result);
-                    let formData = new FormData();
-                    formData.append('file', my);
-                    console.log(JSON.stringify(my));
-                    await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(my)
-                    }).then(console.log("cool"))
-                };
-
-
-
-                /*fileToText(file, jsonAsText => {
+                fileToText(file, jsonAsText => {
                     const jsonData = JSON.parse(jsonAsText);
 
                     if (isArray(jsonData)) {
@@ -744,14 +725,12 @@
                 }
 
                 function sendFlightPlanToServer(flightPlan) {
-                    //console.log(flightPlan);
-
                     fetch('https://localhost:44308/api/FlightPlan', {
                         method: 'POST',
-                        body: flightPlan,
                         headers: {
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify(flightPlan)
                     }).then(res => {
                         if (!res.ok) {
                             (document.getElementById('json-upload-error')).textContent = 'Error Occured: Json File Has A Problem';
@@ -761,7 +740,7 @@
                             console.log(res);
                         }
                     });
-                }*/
+                }
             }
         }
     </script>

@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Runtime.Serialization.Json;
 
 namespace FlightControlWeb.Models.Managers
 {
@@ -93,23 +94,38 @@ namespace FlightControlWeb.Models.Managers
             }
         }
 
+       
         private List<Flight> FetchFlightsFromServer(Server server, DateTime relative_to)
         {
             List<Flight> flightsFromServer = new List<Flight>();
             HttpClient httpClient = new HttpClient();
-            string dateTimeString = relative_to.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+            string dateTimeString = relative_to.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
             string url = server.ServerURL + "/api/Flights?relative_to=" + dateTimeString;
             try
             {
-                var result = httpClient.GetStringAsync(url).Result;
-                string jsonFlight = result.ToString();
-                flightsFromServer = JsonConvert.DeserializeObject<List<Flight>>(jsonFlight);
+                WebRequest requestObject = WebRequest.Create(url);
+                requestObject.Method = "GET";
+                HttpWebResponse response = null;
+                response = (HttpWebResponse)requestObject.GetResponse();
+                string test = null;
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader sr = new StreamReader(stream);
+                    test = sr.ReadToEnd();
+                    flightsFromServer = (List<Flight>)JsonConvert.DeserializeObject(test, typeof(List<Flight>));
+                    sr.Close();
+                }
+
+                foreach (Flight flight in flightsFromServer)
+                {
+                    flight.IsExternal = true;
+                }
             }
-            catch (Exception e)
+            catch(Exception e)
             {
                 throw e;
             }
             return flightsFromServer;
-        } 
+        }
     }
 }

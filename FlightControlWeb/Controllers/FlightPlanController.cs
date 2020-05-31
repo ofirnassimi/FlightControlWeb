@@ -14,13 +14,6 @@ namespace FlightControlWeb.Controllers
     {
         private FlightPlansManager flightPlansManager = new FlightPlansManager();
         private FlightsManager flightsManager = new FlightsManager();
-        private Dictionary<string, string> idPref = new Dictionary<string, string>()
-        {
-            {"El Al", "LY" },
-            {"United Airlines", "UA" },
-            {"Delta", "DL" },
-            {"Turkish Airlines", "TK" }
-        };
 
         // GET: api/FlightPlan/5
         [HttpGet("{flightPlanId}", Name = "Get")]
