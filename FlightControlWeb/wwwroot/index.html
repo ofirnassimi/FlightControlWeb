@@ -99,6 +99,10 @@
             padding-bottom: 7px;
         }
 
+        #flights-time-textbox {
+            margin-top: 20px;
+        }
+
         /*#drop-area {
             border: 2px dashed #ccc;
             border-radius: 20px;
@@ -144,64 +148,69 @@
         </div>
     </div>
 
-    <ul id="flight-plan-details-ul">
-        <li id="flight-id-li">
-            <div>
-                Flight ID:
-            </div>
-            <div id="flight-id-value">
+    <div>
+        <input type="datetime" id="flights-time-textbox" />
+        <button type="button" id="select-time-button">Select Time</button>
 
-            </div>
-        </li>
-        <li id="boarding-location-li">
-            <div>
-                Boarding Location:
-            </div>
-            <div id="boarding-location-value">
+        <ul id="flight-plan-details-ul">
+            <li id="flight-id-li">
+                <div>
+                    Flight ID:
+                </div>
+                <div id="flight-id-value">
 
-            </div>
-        </li>
-        <li id="landing-location-li">
-            <div>
-                Landing Location:
-            </div>
-            <div id="landing-location-value">
+                </div>
+            </li>
+            <li id="boarding-location-li">
+                <div>
+                    Boarding Location:
+                </div>
+                <div id="boarding-location-value">
 
-            </div>
-        </li>
-        <li id="boarding-time-li">
-            <div>
-                Boarding Time:
-            </div>
-            <div id="boarding-time-value">
+                </div>
+            </li>
+            <li id="landing-location-li">
+                <div>
+                    Landing Location:
+                </div>
+                <div id="landing-location-value">
 
-            </div>
-        </li>
-        <li id="landing-time-li">
-            <div>
-                Landing Time:
-            </div>
-            <div id="landing-time-value">
+                </div>
+            </li>
+            <li id="boarding-time-li">
+                <div>
+                    Boarding Time:
+                </div>
+                <div id="boarding-time-value">
 
-            </div>
-        </li>
-        <li id="company-name-li">
-            <div>
-                Company Name:
-            </div>
-            <div id="company-name-value">
+                </div>
+            </li>
+            <li id="landing-time-li">
+                <div>
+                    Landing Time:
+                </div>
+                <div id="landing-time-value">
 
-            </div>
-        </li>
-        <li id="passengers-li">
-            <div>
-                Passengers:
-            </div>
-            <div id="passengers-value">
+                </div>
+            </li>
+            <li id="company-name-li">
+                <div>
+                    Company Name:
+                </div>
+                <div id="company-name-value">
 
-            </div>
-        </li>
-    </ul>
+                </div>
+            </li>
+            <li id="passengers-li">
+                <div>
+                    Passengers:
+                </div>
+                <div id="passengers-value">
+
+                </div>
+            </li>
+        </ul>
+    </div>
 
     <p id="json-upload-error"></p>
 
@@ -213,10 +222,12 @@
         let map;
         let flightPath;
         let pickeduprow;
+        let date = new Date();
 
         const flightsTableBody = document.querySelector("#flights-table > tbody");
 
         async function startApplication() {
+            document.getElementById("select-time-button").onclick = function () { selectTimeButtonClick() };
             await initPageData();
             initMap();
             initFlightsTable();
@@ -400,20 +411,22 @@
         async function showFlightsMarkers() {
             //let date = (new Date()).toISOString();
             //'2020-05-24T09:40:35Z'
-            let date = new Date('2020-05-24T09:04:30Z');
+            //let date = new Date('2020-05-24T09:04:30Z'); 
             let dateString;
 
             while (true) {
-                dateString = date.toISOString();
+                if (date != null) {
+                    dateString = date.toISOString();
 
-                await fetchFlights(dateString);
-                await fetchFlightPlans();
+                    await fetchFlights(dateString);
+                    await fetchFlightPlans();
 
-                date.setSeconds(date.getSeconds() + 1);
+                    date.setSeconds(date.getSeconds() + 1);
 
-                await sleep(1000);
+                    await sleep(1000);
 
-                handleMarkers();
+                    handleMarkers();
+                }
             }
         }
 
@@ -742,6 +755,11 @@
                     });
                 }
             }
+        }
+
+        function selectTimeButtonClick() {
+            let dateString = document.getElementById("flights-time-textbox").value;
+            date = new Date(dateString); 
         }
     </script>
     <script async defer

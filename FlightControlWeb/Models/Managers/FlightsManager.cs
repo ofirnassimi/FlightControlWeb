@@ -99,6 +99,7 @@ namespace FlightControlWeb.Models.Managers
         private List<Flight> FetchFlightsFromServer(Server server, DateTime relative_to)
         {
             List<Flight> flightsFromServer = new List<Flight>();
+            List<Flight> newFlightsFromServer = new List<Flight>();
             HttpClient httpClient = new HttpClient();
             string dateTimeString = relative_to.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
             string url = server.ServerURL + "/api/Flights?relative_to=" + dateTimeString;
@@ -119,15 +120,19 @@ namespace FlightControlWeb.Models.Managers
 
                 foreach (Flight flight in flightsFromServer)
                 {
-                    addFlightPlanFromServer(flight, server);
-                    flight.IsExternal = true;
+                    if (!IsFlightAlreadyExists(flight))
+                    {
+                        addFlightPlanFromServer(flight, server);
+                        flight.IsExternal = true;
+                        newFlightsFromServer.Add(flight);
+                    }
                 }
             }
             catch(Exception e)
             {
                 throw e;
             }
-            return flightsFromServer;
+            return newFlightsFromServer;
         }
 
 
@@ -157,24 +162,19 @@ namespace FlightControlWeb.Models.Managers
             {
                 throw e;
             }
+        }
 
 
-
-            /*HttpClient httpClient = new HttpClient();
-            string url = server.ServerURL + "/api/FlightPlan/" + flight.FlightId;
-            var response = await httpClient.GetAsync(url);
-
-            response.EnsureSuccessStatusCode();
-            string content = await response.Content.ReadAsStringAsync();
-
-            /*try
+        private bool IsFlightAlreadyExists(Flight flight)
+        {
+            foreach (Flight f in flights)
             {
-                var content = await httpClient.GetStringAsync(url);
+                if (flight.FlightId == f.FlightId)
+                {
+                    return true;
+                }
             }
-            catch (Exception e)
-            {
-                throw e;
-            }*/
+            return false;
         }
     }
 }
