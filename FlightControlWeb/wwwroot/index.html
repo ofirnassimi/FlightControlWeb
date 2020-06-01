@@ -149,7 +149,7 @@
     </div>
 
     <div>
-        <input type="datetime" id="flights-time-textbox" />
+        <input type="datetime" id="flights-time-textbox" value="2020-05-24T09:04:30Z"/>
         <button type="button" id="select-time-button">Select Time</button>
 
         <ul id="flight-plan-details-ul">
@@ -222,7 +222,7 @@
         let map;
         let flightPath;
         let pickeduprow;
-        let date = new Date();
+        let date = new Date('2020-05-24T09:04:30Z');
 
         const flightsTableBody = document.querySelector("#flights-table > tbody");
 
@@ -341,18 +341,16 @@
             }
         }
 
-        function addMarker(props) {
+        function addMarker({ location, map, flightId }) {
             let marker = new google.maps.Marker({
-                position: props.location,
-                map: props.map,
-                flightId: props.flightId
+                position: location,
+                map: map,
+                flightId: flightId
             });
 
             marker.setIcon('img/blackPlane.png');
 
             marker.addListener('click', function () {
-                //$('#flights-table-body').find('#' + props.flightId).trigger('click');
-
                 markerAndTableClickFunctionallity(marker);
             });
 
@@ -396,13 +394,14 @@
 
         async function fetchFlightPlans() {
             let flightId;
+            let url;
+            let response;
 
             for (let i = 0; i < flightsArray.length; i++) {
                 if (!flightPlansArray.some(plan => plan.flight_id === flightsArray[i].flight_id)) {
                     flightId = flightsArray[i].flight_id;
-                    //flightId = flightsArray[i].FlightId;
-                    const url = 'https://localhost:44308/api/FlightPlan/' + flightId;
-                    const response = await fetch(url).then(response => response.json());
+                    url = 'https://localhost:44308/api/FlightPlan/' + flightId;
+                    response = await fetch(url).then(response => response.json());
                     flightPlansArray.push(response);
                 }
             }
@@ -436,12 +435,13 @@
 
         function handleMarkers() {
             removeIrrelevantMarkers();
+            let props;
 
             for (let i = 0; i < flightsArray.length; i++) {
                 if (markersArray.some(marker => marker.flightId === flightsArray[i].flight_id)) {
                     updateMarker(markersArray[i]);
                 } else {
-                    let props = {};
+                    props = {};
 
                     props.location = {
                         lat: flightsArray[i].latitude,
@@ -460,7 +460,7 @@
             const markersArrayInitialLength = markersArray.length;
 
             for (let i = 0; i < markersArrayInitialLength; i++) {
-                if (!flightsArray.some(flight => flight.flight_id === markersArray[i].flightId)) {
+                if (!checkIfMarkerIsRelevant(markersArray[i])) {
                     markersArray[i].setMap(null);
                     markersArray.splice(i, 1);
                     removeFlightPath();
@@ -471,23 +471,27 @@
             }
         }
 
-        function showFlightPath(flightPlan) {
-            const segments = [];
+        function checkIfMarkerIsRelevant({ flightId }) {
+            return flightsArray.some(flight => flight.flight_id === flightId);
+        }
 
-            segments.push({
-                lat: flightPlan.initial_location.latitude,
-                lng: flightPlan.initial_location.longitude
+        function showFlightPath({ initial_location, segments }) {
+            const segmentsToShowOnMap = [];
+
+            segmentsToShowOnMap.push({
+                lat: initial_location.latitude,
+                lng: initial_location.longitude
             });
 
-            for (let i = 0; i < flightPlan.segments.length; i++) {
-                segments.push({
-                    lat: flightPlan.segments[i].latitude,
-                    lng: flightPlan.segments[i].longitude
+            for (let i = 0; i < segments.length; i++) {
+                segmentsToShowOnMap.push({
+                    lat: segments[i].latitude,
+                    lng: segments[i].longitude
                 });
             }
 
             flightPath = new google.maps.Polyline({
-                path: segments,
+                path: segmentsToShowOnMap,
                 geodesic: true,
                 strokeColor: '#060054',
                 strokeOpacity: 1.0,
@@ -529,9 +533,8 @@
 
         }
 
-        function calculateLandingTime(flightPlan) {
-            let landingTime = new Date(flightPlan.initial_location.date_time);
-            let segments = flightPlan.segments;
+        function calculateLandingTime({ initial_location, segments }) {
+            let landingTime = new Date(initial_location.date_time);
 
             for (let i = 0; i < segments.length; i++) {
                 landingTime.setSeconds(landingTime.getSeconds() + segments[i].timespan_seconds);
@@ -580,7 +583,9 @@
 
         function addFligthToTable(flight, redRowId) {
             const tr = document.createElement("tr");
+
             tr.setAttribute("id", flight.flight_id);
+
             if (redRowId) {
                 tr.style.backgroundColor = '#ff0000';
             } else {
@@ -589,9 +594,11 @@
 
             // Delete flight
             const td4 = document.createElement("td");
+
             if (!flight.is_external) {
                 td4.innerHTML = "<img src='img/trash.png' alt='hello'/>";
             }
+
             td4.onclick = function () {
                 const flightId = flight.flight_id;
 
@@ -599,24 +606,21 @@
                     deleteFlight(flightId);
                 }
             };
+
             tr.appendChild(td4);
 
-            //Flight ID
             const td = document.createElement("td");
             td.textContent = flight.flight_id;
             tr.appendChild(td);
 
-            //Company Name
             const td1 = document.createElement("td");
             td1.textContent = flight.company_name;
             tr.appendChild(td1);
 
-            //Boarding Time
             const td2 = document.createElement("td");
             td2.textContent = flight.date_time;
             tr.appendChild(td2);
 
-            //Is External
             const td3 = document.createElement("td");
             td3.textContent = flight.is_external;
             tr.appendChild(td3);
@@ -652,17 +656,13 @@
             });
         }
 
-        function handleRow(marker) {
+        function handleRow({ flightId }) {
             let rowFlightId;
             const flightsTable = document.getElementById("flights-table");
 
-            console.log(marker.flightId);
-
             for (let i = 1, row; row = flightsTable.rows[i]; i++) {
                 rowFlightId = row.cells[0].innerHTML;
-                if (marker.flightId == rowFlightId) {
-                    // If row is red, change to pink and hahefech
-                    // Bold row in table
+                if (flightId == rowFlightId) {
                     row.css("background-color", "red");
                 }
             }
@@ -670,10 +670,10 @@
 
         function dragAndDrop() {
             let dropArea = document.getElementById('drop-area');
+            let flightsTable = document.getElementById('flights-table');
 
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropArea.addEventListener(eventName, preventDefaults, false);
-                //dropArea.addEventListener(eventName, handlerFunction, false);
             });
 
             ['dragenter', 'dragover'].forEach(eventName => {

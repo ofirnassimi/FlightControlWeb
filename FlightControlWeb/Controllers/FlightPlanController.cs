@@ -15,6 +15,18 @@ namespace FlightControlWeb.Controllers
     {
         private FlightPlansManager flightPlansManager = new FlightPlansManager();
         private FlightsManager flightsManager = new FlightsManager();
+        Dictionary<string, string> flightIdByCompanyName = new Dictionary<string, string>()
+        {
+            {"El AL", "LY" }, {"ElAL", "LY" }, {"Swiss Air", "LX" }, {"Turkish Airlines", "TK" },
+            {"United Airlines", "UA" }, {"British Airways", "BA" }, {"Alitalia", "AZ" },
+            {"Lufthansa", "LH" }, {"Aeroflot", "SU" }, {"Air Baltic", "BT" },
+            {"Air Canada", "AC" }, {"American Airlines", "AA" }, {"Brussels Airlines", "SN" },
+            {"Czech Airlines", "OK" }, {"Delta", "DL" }, {"Emirates", "EK" },
+            {"Etihad Airways", "EY" }, {"Hainan Airlines", "HU" }, {"Iberia", "IB" },
+            {"KLM", "KL" }, {"Latam Airlines", "LA" }, {"LOT", "LO" }, {"Norwegian", "DY" },
+            {"Qantas", "QF" }, {"Virgin Atlantic", "VS" }, {"Air Europa", "UX" },
+            {"Air France", "AF" }
+        };
 
         // GET: api/FlightPlan/5
         [HttpGet("{flightPlanId}", Name = "Get")]
@@ -32,7 +44,8 @@ namespace FlightControlWeb.Controllers
             string x = flightPlan.ToJson();
             JObject json = JObject.Parse(x);
 
-            flightPlan.FlightId = GenerateFlightID();
+            string companyName = json["company_name"].ToString();
+            flightPlan.FlightId = GenerateFlightID(companyName);
 
             InitialLocation initialLocation = json["initial_location"].ToObject<InitialLocation>();
 
@@ -90,12 +103,19 @@ namespace FlightControlWeb.Controllers
             return flightPlan.FlightId;*/
         }
 
-        public string GenerateFlightID()
+        public string GenerateFlightID(string companyName)
         {
             Random rand = new Random();
             int num = rand.Next(100, 10000);
-
-            return "flt-" + num;
+            try
+            {
+                string initialId = flightIdByCompanyName[companyName];
+                return initialId + num;
+            }
+            catch (Exception e)
+            {
+                return "FLT" + num;
+            }
         }
     }
 }

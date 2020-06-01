@@ -190,8 +190,5 @@ namespace FlightControlWeb.Controllers
             return new Location { Longitude = relativeLongitude, Latitude = relativeLatitude };
         }
 
-
-       
-
     }
 }
