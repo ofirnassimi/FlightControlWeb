@@ -10,8 +10,7 @@ namespace FlightControlWeb.Models.Managers
             /*new Server{ ServerId = "srv-1432", ServerURL = "www.sapir.com" },
             new Server{ ServerId = "srv-6367", ServerURL = "www.ofir.com" },
             new Server{ ServerId = "srv-8903", ServerURL = "www.mor.com" },*/
-            new Server{ ServerId = "srv-4996", ServerURL = "http://rony6.atwebpages.com" },
-            new Server { ServerId = "srv-6367", ServerURL = "www.ofir.com" }
+            new Server{ ServerId = "srv-4996", ServerURL = "http://rony6.atwebpages.com" }
         };
 
         public void AddServer(Server server)
