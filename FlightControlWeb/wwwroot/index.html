@@ -546,11 +546,13 @@
             const landingLat = flightPlan.segments[flightPlan.segments.length - 1].latitude;
             const landingLng = flightPlan.segments[flightPlan.segments.length - 1].longitude;
             const landingTime = calculateLandingTime(flightPlan);
+            const boardingTime = new Date(flightPlan.initial_location.date_time);
 
             document.getElementById("flight-id-value").innerHTML = flightPlan.flight_id;
             document.getElementById("boarding-location-value").innerHTML = boardingLat + ', ' + boardingLng;
             document.getElementById("landing-location-value").innerHTML = landingLat + ', ' + landingLng;
-            document.getElementById("boarding-time-value").innerHTML = flightPlan.initial_location.date_time;
+            document.getElementById("boarding-time-value").innerHTML = boardingTime.toISOString()
+                .split('.')[0] + "Z";
             document.getElementById("landing-time-value").innerHTML = landingTime;
             document.getElementById("company-name-value").innerHTML = flightPlan.company_name;
             document.getElementById("passengers-value").innerHTML = flightPlan.passengers;
@@ -642,7 +644,7 @@
             tr.appendChild(tdCompanyName);
 
             const tdDateTime = document.createElement("td");
-            const boardingDateISO = new Date(flight.date_time).toISOString();
+            const boardingDateISO = new Date(flight.date_time).toISOString().split('.')[0] + "Z";
             tdDateTime.textContent = boardingDateISO;
             tr.appendChild(tdDateTime);
 
