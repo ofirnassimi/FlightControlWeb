@@ -7,6 +7,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <style>
+        body { 
+          font: 400 16px 'Calibri','Arial';
+        }
+
         #wrapper {
             display: flex;
         }
@@ -18,32 +22,23 @@
 
         }
 
-        /*ul {
-            columns: 2;
-            -webkit-columns: 2;
-            -moz-columns: 2;
-        }*/
-
         .columns {
             float: left;
             position: relative;
             margin-right: 20px;
         }
 
-       
-
         #drop-area {
             border: 2px dashed #ccc;
-            font-family: sans-serif;
             flex: 1;
             margin-left: 40px;
             margin-right: 40px;
-            border-radius: 20px;
+            /*border-radius: 20px;*/
         }
 
-            #drop-area.highlight {
-                border-color: purple;
-            }
+        #drop-area.highlight {
+            border-color: purple;
+        }
 
         #flights-table {
             width: 100%;
@@ -51,6 +46,7 @@
             text-align: center;
             border-collapse: collapse;
             border-radius: 10px;
+            margin: auto;
         }
 
         table#flights-table tbody tr {
@@ -65,13 +61,8 @@
         }
 
         table#flights-table tbody td {
-            /*padding: 1em;*/
             border-bottom: 2px solid white;
         }
-
-        /*body {
-            margin: 1.5em;
-        }*/
 
         #fileElem {
             display: none;
@@ -83,68 +74,89 @@
         }
 
         th {
-            background-color: #ffb6c1;
+            background-color: #70c4e1;
         }
 
         #flight-plan-details-ul {
-            background: #dcdcdc;
             margin-top: 20px;
             margin-right: 65%;
             list-style-type: none;
-            font-family: sans-serif;
             border-radius: 10px;
         }
 
         #flight-plan-details-ul li {
             padding-bottom: 7px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-left: 30px;
+            padding-right: 30px;
+            background-color: #fff;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            box-shadow: 0px 0px 9px 2px rgba(0, 0, 0, 0.1);
         }
 
         #flights-time-textbox {
             margin-top: 20px;
         }
 
-        /*#drop-area {
-            border: 2px dashed #ccc;
-            border-radius: 20px;
-            width: 480px;
-            font-family: sans-serif;
-            margin: 100px auto;
-            padding: 20px;
-            display: none;
+        .table-class {
+            overflow-y: scroll;
+            max-height: 300px;
         }
 
-        #drop-area.highlight {
-            border-color: purple;
+        h2 {
+            text-align: center;
+            text-transform: uppercase;
+            color: #70c4e1;
         }
 
-        .my-form {
-            margin-bottom: 10px;
-        }*/
+        #drag-p {
+            text-indent: 50px;
+            text-align: justify;
+            letter-spacing: 2px;
+        }
 
+        .flight-details-heading {
+            font-weight: bold;
+        }
+
+        .flight-details-value {
+            color: #a9a9a9;
+        }
     </style>
     <link rel="shortcut icon" href="">
 </head>
 <body>
     <div id="wrapper">
         <div id="map"></div>
-        <div id="drop-area">
-            <form class="my-form">
-                <input type="file" id="fileElem" multiple accept="json/*" onchange="handleFiles(this.files)">
-                <table id="flights-table">
-                    <thead>
-                        <tr class="rows">
-                            <th></th>
-                            <th>Flight ID</th>
-                            <th>Company Name</th>
-                            <th>Boarding Time</th>
-                            <th>Is External</th>
-                        </tr>
-                    </thead>
-                    <tbody id="flights-table-body">
-                        <!-- To be filled by JavaScript -->
-                    </tbody>
-                </table>
-            </form>
+
+        <div>
+            <h2>All Flights Now</h2>
+            <p id="drag-p">Drag a json file to add flights:</p>
+            <div class="table-class">
+                <div id="drop-area">
+                    <form class="my-form">
+                        <input type="file" id="fileElem" multiple accept="json/*" onchange="handleFiles(this.files)">
+                        <table id="flights-table">
+                            <thead>
+                                <tr class="rows">
+                                    <th></th>
+                                    <th>Flight ID</th>
+                                    <th>Company Name</th>
+                                    <th>Boarding Time</th>
+                                    <th>Is External</th>
+                                </tr>
+                            </thead>
+                            <tbody id="flights-table-body">
+                                <!-- To be filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -154,58 +166,58 @@
 
         <ul id="flight-plan-details-ul">
             <li id="flight-id-li">
-                <div>
+                <div class="flight-details-heading">
                     Flight ID:
                 </div>
-                <div id="flight-id-value">
+                <div id="flight-id-value" class="flight-details-value">
 
                 </div>
             </li>
             <li id="boarding-location-li">
-                <div>
+                <div class="flight-details-heading">
                     Boarding Location:
                 </div>
-                <div id="boarding-location-value">
+                <div id="boarding-location-value" class="flight-details-value">
 
                 </div>
             </li>
             <li id="landing-location-li">
-                <div>
+                <div class="flight-details-heading">
                     Landing Location:
                 </div>
-                <div id="landing-location-value">
+                <div id="landing-location-value" class="flight-details-value">
 
                 </div>
             </li>
             <li id="boarding-time-li">
-                <div>
+                <div class="flight-details-heading">
                     Boarding Time:
                 </div>
-                <div id="boarding-time-value">
+                <div id="boarding-time-value" class="flight-details-value">
 
                 </div>
             </li>
             <li id="landing-time-li">
-                <div>
+                <div class="flight-details-heading">
                     Landing Time:
                 </div>
-                <div id="landing-time-value">
+                <div id="landing-time-value" class="flight-details-value">
 
                 </div>
             </li>
             <li id="company-name-li">
-                <div>
+                <div class="flight-details-heading">
                     Company Name:
                 </div>
-                <div id="company-name-value">
+                <div id="company-name-value" class="flight-details-value">
 
                 </div>
             </li>
             <li id="passengers-li">
-                <div>
+                <div class="flight-details-heading">
                     Passengers:
                 </div>
-                <div id="passengers-value">
+                <div id="passengers-value"class="flight-details-value">
 
                 </div>
             </li>
@@ -263,8 +275,8 @@
                     let marker = markersArray[i];
                     let row = document.getElementById(marker.flightId);
 
-                    if (row.style.backgroundColor == "rgb(255, 0, 0)") {
-                        row.style.backgroundColor = '#ffccff';
+                    if (row.style.backgroundColor == "rgb(175, 238, 238)") {
+                        row.style.backgroundColor = '#f2f2f2';
                     }
                 }
             });
@@ -377,18 +389,18 @@
 
             let row = document.getElementById(marker.flightId);
 
-            if (row.style.backgroundColor == "rgb(255, 0, 0)") {
-                row.style.backgroundColor = '#ffccff';
+            if (row.style.backgroundColor == "rgb(175, 238, 238)") {
+                row.style.backgroundColor = '#f2f2f2';
             } else {
                 let table = document.getElementById('flights-table-body');
 
                 for (let i = 0; i < table.children.length; i++) {
-                    if (table.children[i].style.backgroundColor == "rgb(255, 0, 0)") {
-                        table.children[i].style.backgroundColor = '#ffccff';
+                    if (table.children[i].style.backgroundColor == "rgb(175, 238, 238)") {
+                        table.children[i].style.backgroundColor = '#f2f2f2';
                     }
                 }
 
-                row.style.backgroundColor = 'rgb(255,0,0)';
+                row.style.backgroundColor = 'rgb(175, 238, 238)';
             }
         }
 
@@ -408,9 +420,6 @@
         }
 
         async function showFlightsMarkers() {
-            //let date = (new Date()).toISOString();
-            //'2020-05-24T09:40:35Z'
-            //let date = new Date('2020-05-24T09:04:30Z'); 
             let dateString;
 
             while (true) {
@@ -540,7 +549,7 @@
                 landingTime.setSeconds(landingTime.getSeconds() + segments[i].timespan_seconds);
             }
 
-            return landingTime;
+            return landingTime.toISOString().split('.')[0]+"Z";
         }
 
         function initFlightsTable() {
@@ -548,7 +557,7 @@
 
             if (flightsTableBody.children.length !== 0) {
                 for (let i = 0; i < flightsTableBody.children.length; i++) {
-                    if (flightsTableBody.children[i].style.backgroundColor == "rgb(255, 0, 0)") {
+                    if (flightsTableBody.children[i].style.backgroundColor == "rgb(175, 238, 238)") {
                         redRowId = flightsTableBody.children[i].id;
                     }
                 }
@@ -587,9 +596,9 @@
             tr.setAttribute("id", flight.flight_id);
 
             if (redRowId) {
-                tr.style.backgroundColor = '#ff0000';
+                tr.style.backgroundColor = '#70c4e1';
             } else {
-                tr.style.backgroundColor = '#ffccff';
+                tr.style.backgroundColor = '#f2f2f2';
             }
 
             // Delete flight
@@ -618,7 +627,8 @@
             tr.appendChild(td1);
 
             const td2 = document.createElement("td");
-            td2.textContent = flight.date_time;
+            const boardingDateISO = new Date(flight.date_time).toISOString();
+            td2.textContent = boardingDateISO;
             tr.appendChild(td2);
 
             const td3 = document.createElement("td");
@@ -662,8 +672,9 @@
 
             for (let i = 1, row; row = flightsTable.rows[i]; i++) {
                 rowFlightId = row.cells[0].innerHTML;
+
                 if (flightId == rowFlightId) {
-                    row.css("background-color", "red");
+                    row.css("background-color", "#afeeee");
                 }
             }
         }
