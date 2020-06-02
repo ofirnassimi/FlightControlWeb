@@ -33,7 +33,6 @@
             flex: 1;
             margin-left: 40px;
             margin-right: 40px;
-            /*border-radius: 20px;*/
         }
 
         #drop-area.highlight {
@@ -232,7 +231,6 @@
     </div>
 
 
-
     <script>
         let serversArray;
         let flightsArray;
@@ -304,21 +302,6 @@
 
             const url = `/api/Flights?relative_to=${date}&sync_all`;
 
-            /*const response = await fetch(url).then(response => response.json());
-            flightsArray = response;*/
-
-
-            //const url = `https://localhost:44308/api/Flights?relative_to=${date}&sync_all`;
-            /*const response = await fetch(url).then(response => {
-                response.json();
-                errorMessage.innerHTML = "";
-            })
-                .catch(error => {
-                    errorMessage.innerHTML = "Could not get flights from server"
-                });
-            flightsArray = response;*/
-
-
             const response = await fetch(url)
                 .then(response => response.json())
                 .catch(error => {
@@ -344,7 +327,6 @@
 
         async function deleteFlightByFetch(flightId) {
             const url = `/api/Flights/${flightId}`;
-            //const url = `https://localhost:44308/api/Flights/${flightId}`;
 
             fetch(url, {
                 method: 'DELETE',
@@ -819,7 +801,6 @@
     </script>
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=startApplication">
-                                //src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPKnpO09dXaCNjbl5fiW2R16yuodWiRXw&callback=initMap">
     </script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </body>

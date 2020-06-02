@@ -64,43 +64,6 @@ namespace FlightControlWeb.Controllers
             flightPlansManager.AddFlightPlan(flightPlan);
 
             return flightPlan.FlightId;
-
-
-            /*string x = flight.ToJson();
-            JObject json = JObject.Parse(x);
-
-            Flight f = new Flight();
-
-            f.FlightId = json["flight_id"].ToString();
-            f.Longitude = Convert.ToDouble(json["longitude"].ToString());
-            f.Latitude = Convert.ToDouble(json["latitude"].ToString());
-            f.Passengers = Int32.Parse(json["passengers"].ToString());
-            f.CompanyName = json["company_name"].ToString();
-            f.DateTime = DateTime.Parse(json["date_time"].ToString());
-            f.IsExternal = true;
-
-            flightsManager.AddFlight(f);
-            return f.FlightId;*/
-
-
-
-            /*flightPlan.FlightId = GenerateFlightID();
-
-            Flight flight = new Flight()
-            {
-                FlightId = flightPlan.FlightId,
-                Longitude = flightPlan.InitialLocation.Longitude,
-                Latitude = flightPlan.InitialLocation.Latitude,
-                Passengers = flightPlan.Passengers,
-                CompanyName = flightPlan.CompanyName,
-                DateTime = flightPlan.InitialLocation.DateTime,
-                IsExternal = false
-            };
-
-            flightsManager.AddFlight(flight);
-            flightPlansManager.AddFlightPlan(flightPlan);
-
-            return flightPlan.FlightId;*/
         }
 
         public string GenerateFlightID(string companyName)
