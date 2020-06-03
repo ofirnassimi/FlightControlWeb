@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 
 using FlightControlWeb.Models;
 using FlightControlWeb.Models.Managers;
+using FlightControlWeb.Models.Managers.Interfaces;
 
 namespace FlightControlWeb.Controllers
 {
@@ -10,7 +11,17 @@ namespace FlightControlWeb.Controllers
     [ApiController]
     public class ServersController : ControllerBase
     {
-        private ServersManager serversManager = new ServersManager();
+        private IServersManager serversManager = new ServersManager();
+
+        public ServersController()
+        {
+
+        }
+
+        public ServersController(IServersManager serversManager)
+        {
+            this.serversManager = serversManager;
+        }
 
         // GET: api/Servers
         [HttpGet]

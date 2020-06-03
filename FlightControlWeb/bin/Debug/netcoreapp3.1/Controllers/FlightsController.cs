@@ -29,7 +29,6 @@ namespace FlightControlWeb.Controllers
         {
             List<Flight> activeFlights = new List<Flight>();
 
-            //DateTime dateTime = TimeZoneInfo.ConvertTimeToUtc(relative_to);
             bool syncAll = Request.Query.Keys.Contains("sync_all");
 
             foreach (Flight flight in flightsManager.GetAllFlights(relative_to)) {

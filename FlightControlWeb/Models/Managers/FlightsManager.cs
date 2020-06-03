@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using FlightControlWeb.Models.Managers.Interfaces;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +9,7 @@ using System.Net.Http;
 
 namespace FlightControlWeb.Models.Managers
 {
-    public class FlightsManager
+    public class FlightsManager : IFlightsManager
     {
         private static List<Flight> flights = new List<Flight>()
         {

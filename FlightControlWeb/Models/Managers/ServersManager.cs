@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using FlightControlWeb.Models.Managers.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FlightControlWeb.Models.Managers
 {
-    public class ServersManager
+    public class ServersManager : IServersManager
     {
         private static List<Server> servers = new List<Server>()
         {

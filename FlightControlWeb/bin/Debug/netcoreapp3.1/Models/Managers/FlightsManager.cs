@@ -13,7 +13,7 @@ namespace FlightControlWeb.Models.Managers
         private static List<Flight> flights = new List<Flight>()
         {
             new Flight{ FlightId = "LY319", Longitude = 34.88, Latitude = 32.01, Passengers = 217,
-                CompanyName = "El Al", DateTime = DateTime.Parse("2020-05-24T09:04:00Z"), IsExternal = true },
+                CompanyName = "El Al", DateTime = DateTime.Parse("2020-05-24T09:04:00Z"), IsExternal = false },
             new Flight{ FlightId = "SWS899", Longitude = 8.55, Latitude = 47.45, Passengers = 359,
                 CompanyName = "Swiss Air", DateTime = DateTime.Parse("2020-05-24T09:04:26Z"), IsExternal = true },
             new Flight{ FlightId = "TK6140", Longitude = 30.8, Latitude = 36.9, Passengers = 143,
